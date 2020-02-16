@@ -1,4 +1,4 @@
-package com.example.org.app.chaincode.invocation;
+package com.example.demo.api;
 
 import org.hyperledger.fabric.sdk.ChaincodeID;
 import org.hyperledger.fabric.sdk.Channel;
@@ -29,7 +29,7 @@ public class Fabcar{
      * 更新账本
      * @throws Exception
      */
-    private static void updateCar() throws Exception {
+    public static void updateCar() throws Exception {
         HFClient client = HFClient.createNewInstance();
         Channel channel = initChannel(client);
 
@@ -52,7 +52,7 @@ public class Fabcar{
      * 查询账本
      * @throws Exception
      */
-    private static void queryCar() throws Exception {
+    public static void queryCar() throws Exception {
         HFClient client = HFClient.createNewInstance();
         Channel channel = initChannel(client);
 
@@ -82,14 +82,14 @@ public class Fabcar{
      * @param certDir 目录名, 用来保存证书和私钥
      * @throws Exception
      */
-    private static void enroll(String username, String password, String certDir) throws Exception {
+    public static void enroll(String username, String password, String certDir) throws Exception {
         HFClient client = HFClient.createNewInstance();
         CryptoSuite cs = CryptoSuite.Factory.getCryptoSuite();
         client.setCryptoSuite(cs);
 
         Properties prop = new Properties();
         prop.put("verify", false);
-        HFCAClient caClient = HFCAClient.createNewInstance("http://49.235.226.118:7054", prop);
+        HFCAClient caClient = HFCAClient.createNewInstance("http://192.168.0.108:7054", prop);
         caClient.setCryptoSuite(cs);
 
 
@@ -101,7 +101,7 @@ public class Fabcar{
         CertUtils.saveEnrollment(enrollment, certDir, username);
     }
 
-    private static Channel initChannel(HFClient client) throws Exception {
+    public static Channel initChannel(HFClient client) throws Exception {
         CryptoSuite cs = CryptoSuite.Factory.getCryptoSuite();
         client.setCryptoSuite(cs);
 
@@ -114,9 +114,9 @@ public class Fabcar{
 
         // 初始化channel
         Channel channel = client.newChannel("mychannel");
-        channel.addPeer(client.newPeer("peer", "grpc://49.235.226.118:7051"));
+        channel.addPeer(client.newPeer("peer", "grpc://192.168.0.108:7051"));
         // 指定排序节点地址, 无论是后面执行查询还是更新都必须指定排序节点
-        channel.addOrderer(client.newOrderer("orderer", "grpc://49.235.226.118:7050"));
+        channel.addOrderer(client.newOrderer("orderer", "grpc://192.168.0.108:7050"));
         channel.initialize();
 
         return channel;

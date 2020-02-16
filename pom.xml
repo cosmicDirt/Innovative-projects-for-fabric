@@ -47,6 +47,12 @@
             <version>1.4.7</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.hyperledger.fabric-chaincode-java</groupId>
+            <artifactId>fabric-chaincode-shim</artifactId>
+            <version>1.4.1</version>
+        </dependency>
+
     </dependencies>
 
     <build>

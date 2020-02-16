@@ -1,4 +1,4 @@
-package com.example.org.app.chaincode.invocation;
+package com.example.demo.api;
 
 import org.hyperledger.fabric.sdk.Enrollment;
 import javax.xml.bind.DatatypeConverter;

@@ -2,9 +2,37 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
     <title>Title</title>
 </head>
 <body>
-
+<div id="test">
+    <el-button type="primary" @click="test">测试</el-button>
+    <p>{{this.res}}</p>
+</div>
 </body>
+
+<!-- import Vue before Element -->
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<!-- import JavaScript -->
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<script src="js/axios.min.js"></script>
+<script>
+    var app = new Vue({
+        el: '#test',
+        data: {
+            res: {}
+        },
+        methods: {
+            test: function () {
+
+                axios.post('/login', {
+                    test:"1"
+                }).then(function (response) {
+                    this.res=response.data.details;
+                }.bind(this));
+            }
+        }
+    })
+</script>
 </html>

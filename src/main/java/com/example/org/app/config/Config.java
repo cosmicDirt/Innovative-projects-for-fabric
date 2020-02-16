@@ -3,7 +3,7 @@ package com.example.org.app.config;
 import java.io.File;
 
 public class Config {
-	public static final String baseUrl ="49.235.226.118";
+	public static final String baseUrl ="192.168.0.108";
 	public static final String ORG1_MSP = "Org1MSP";
 
 	public static final String ORG1 = "org1";
