@@ -53,6 +53,19 @@
             <version>1.4.1</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.hyperledger.fabric</groupId>
+            <artifactId>fabric-gateway-java</artifactId>
+            <version>1.4.1</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.owlike/genson -->
+        <dependency>
+            <groupId>com.owlike</groupId>
+            <artifactId>genson</artifactId>
+            <version>1.5</version>
+        </dependency>
+
+
     </dependencies>
 
     <build>

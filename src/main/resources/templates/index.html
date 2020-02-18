@@ -26,8 +26,9 @@
         methods: {
             test: function () {
 
-                axios.post('/login', {
-                    test:"1"
+                axios.post('/register', {
+                    name:"stu1",
+                    password:"stu1"
                 }).then(function (response) {
                     this.res=response.data.details;
                 }.bind(this));

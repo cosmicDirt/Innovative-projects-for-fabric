@@ -1,8 +1,6 @@
-package com.example.demo.api;
+package com.example.demo.controller;
 
 import com.example.demo.HFJavaExample;
-import com.example.demo.entity.StudentEntity;
-import com.google.gson.Gson;
 import org.hyperledger.fabric.sdk.*;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,12 +22,12 @@ public class LoginController {
         String details = "";
         String stringResponse="";
 
-        if (data.containsKey("student_name")) {
-            String name = data.get("student_name");
+        if (data.containsKey("test")) {
+            String name = data.get("test");
             HFClient client=HFJavaExample.getClient();
             Channel channel = client.getChannel("mychannel");
             QueryByChaincodeRequest req = client.newQueryProposalRequest();
-            ChaincodeID cid = ChaincodeID.newBuilder().setName("StudentChainCode").build();
+            ChaincodeID cid = ChaincodeID.newBuilder().setName("SimpleChainCode").build();
             req.setChaincodeID(cid);
             req.setFcn("query");
             req.setArgs(new String[] { name });
@@ -37,20 +35,21 @@ public class LoginController {
             for (ProposalResponse pres : res) {
                 stringResponse = new String(pres.getChaincodeActionResponsePayload());
             }
-            Gson gson=new Gson();
-            StudentEntity studentEntity=gson.fromJson(stringResponse,StudentEntity.class);
+            System.out.println(stringResponse);
+           // Gson gson=new Gson();
+            //StudentEntity studentEntity=gson.fromJson(stringResponse,StudentEntity.class);
             /*if (list.isEmpty()) {
                 status = "wrong";
                 details = "用户不存在";
             }*/
-            if (!studentEntity.getUserPassword().equals(data.get("password"))) {
+          /*  if (!studentEntity.getUserPassword().equals(data.get("password"))) {
                 status = "wrong";
                 details = "密码错误";
             }
             //用户名与密码正确
             else {
                 status = "right";
-            }
+            }*/
         } else {
             status = "wrong";
             details = "连接失败";

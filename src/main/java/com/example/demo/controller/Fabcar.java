@@ -1,4 +1,4 @@
-package com.example.demo.api;
+package com.example.demo.controller;
 
 import org.hyperledger.fabric.sdk.ChaincodeID;
 import org.hyperledger.fabric.sdk.Channel;
