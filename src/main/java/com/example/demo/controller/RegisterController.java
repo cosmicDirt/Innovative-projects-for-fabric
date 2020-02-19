@@ -48,7 +48,7 @@ public class RegisterController {
             }
             else {
                 req.setFcn("createStudent");
-                req.setArgs(new String[]{data.get("stuNumber"),data.get("name"),data.get("password")});
+                req.setArgs(new String[]{data.get("name"),data.get("stuNumber"),data.get("password")});
                 channel.queryByChaincode(req);
                 status="right";
                 details="注册成功";

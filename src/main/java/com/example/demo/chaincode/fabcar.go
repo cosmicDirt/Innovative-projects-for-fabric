@@ -44,12 +44,27 @@ type SmartContract struct {
 
 // Define the car structure, with 4 properties.  Structure tags are used by encoding/json library
 type Student struct {
-	StuNumber string `json:"stuNumber"`
 	Name      string `json:"name"`
+	StuNumber string `json:"stuNumber"`
 	Password  string `json:"password"`
 	Gender    string `json:"gender"`
 	Phone     string `json:"phone"`
 	Email     string `json:"email"`
+}
+
+type Comment struct {
+	UserName      string `json:"userName"`
+	UserAvatar  string `json:"userAvatar"`
+	Content    string `json:"content"`
+	Time     string `json:"time"`
+}
+
+type Subproject struct {
+	SubproID string `json:"subproID"`
+	ProID     string `json:"proID"`
+	Info      string `json:"info"`
+	Member   []string `json:"member"`
+	Comment   []Comment `json:"comment"`
 }
 
 /*
@@ -75,6 +90,16 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 		return s.initLedger(APIstub)
 	} else if function == "createStudent" {
 		return s.createStudent(APIstub, args)
+	} else if function=="createSubproject"{
+		return s.createSubproject(APIstub, args)
+	} else if function=="deleteSubproject" {
+		return s.deleteSubproject(APIstub, args)
+	} else if function=="joinSubproject"{
+		return s.joinSubproject(APIstub,args)
+	} else if function=="quitSubproject"{
+		return s.quitSubproject(APIstub,args)
+	} else if function=="AddAComment"{
+		return s.AddAComment(APIstub,args)
 	}
 
 	return shim.Error("Invalid Smart Contract function name.")
@@ -114,7 +139,7 @@ func (s *SmartContract) createStudent(APIstub shim.ChaincodeStubInterface, args 
 		return shim.Error("Incorrect number of arguments. Expecting 3")
 	}
 
-	var stu = Student{Name: args[1], Password: args[2]}
+	var stu = Student{Name:args[0],StuNumber: args[1], Password: args[2]}
 
 	stuAsBytes, _ := json.Marshal(stu)
 	APIstub.PutState(args[0], stuAsBytes)
@@ -122,6 +147,101 @@ func (s *SmartContract) createStudent(APIstub shim.ChaincodeStubInterface, args 
 	return shim.Success(nil)
 }
 
+func (s *SmartContract) createSubproject(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	var subpro Subproject
+	if len(args) < 4 {
+		return shim.Error("Incorrect number of arguments. Expecting 4+")
+	} else if len(args)==4{
+		subpro = Subproject{SubproID: args[1], ProID: args[2],Info:args[3]}
+	} else {
+		var str []string
+		for i := 4; i < len(args); i++ {
+			str = append(str, args[i])
+		}
+		subpro = Subproject{SubproID: args[1], ProID: args[2], Info: args[3], Member: str}
+	}
+	subproAsBytes, _ := json.Marshal(subpro)
+	APIstub.PutState(args[0], subproAsBytes)
+
+	return shim.Success(nil)
+}
+
+func (s *SmartContract) deleteSubproject(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1")
+	}
+
+	APIstub.DelState(args[0])
+
+	return shim.Success(nil)
+}
+
+func (s *SmartContract) joinSubproject(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 2 {
+		return shim.Error("Incorrect number of arguments. Expecting 2")
+	}
+
+	subproAsBytes, _ := APIstub.GetState(args[0])
+	subpro := Subproject{}
+
+	json.Unmarshal(subproAsBytes, &subpro)
+	subpro.Member=append(subpro.Member,args[1])
+
+	subproAsBytes, _ = json.Marshal(subpro)
+	APIstub.PutState(args[0], subproAsBytes)
+
+
+	return shim.Success(nil)
+}
+
+func (s *SmartContract) quitSubproject(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 2 {
+		return shim.Error("Incorrect number of arguments. Expecting 2")
+	}
+
+	subproAsBytes, _ := APIstub.GetState(args[0])
+	subpro := Subproject{}
+
+	var index,flag int
+	json.Unmarshal(subproAsBytes, &subpro)
+	for i:=0;i<len(subpro.Member);i++{
+		if subpro.Member[i]==args[1]{
+			index=i
+			flag=1
+		}
+	}
+	if flag==1{
+		subpro.Member = append(subpro.Member[:index], subpro.Member[index+1:]...)
+	}
+
+	subproAsBytes, _ = json.Marshal(subpro)
+	APIstub.PutState(args[0], subproAsBytes)
+
+
+	return shim.Success(nil)
+}
+
+func (s *SmartContract) AddAComment(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 5 {
+		return shim.Error("Incorrect number of arguments. Expecting 5")
+	}
+	var comment=Comment{UserName:args[1],UserAvatar:args[2],Content:args[3],Time:args[4]}
+	subproAsBytes1, _ := APIstub.GetState(args[0])
+	subpro := Subproject{}
+
+	json.Unmarshal(subproAsBytes1, &subpro)
+	subpro.Comment=append(subpro.Comment, comment)
+
+	subproAsBytes2, _ := json.Marshal(subpro)
+	APIstub.PutState(args[0], subproAsBytes2)
+
+	return shim.Success(nil)
+}
 /*func (s *SmartContract) queryAllCars(APIstub shim.ChaincodeStubInterface) sc.Response {
 
 	startKey := "CAR0"
