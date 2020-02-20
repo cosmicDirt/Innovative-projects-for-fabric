@@ -89,7 +89,7 @@ public class Fabcar{
 
         Properties prop = new Properties();
         prop.put("verify", false);
-        HFCAClient caClient = HFCAClient.createNewInstance("http://192.168.0.108:7054", prop);
+        HFCAClient caClient = HFCAClient.createNewInstance("http://192.168.0.101:7054", prop);
         caClient.setCryptoSuite(cs);
 
 
@@ -114,9 +114,9 @@ public class Fabcar{
 
         // 初始化channel
         Channel channel = client.newChannel("mychannel");
-        channel.addPeer(client.newPeer("peer", "grpc://192.168.0.108:7051"));
+        channel.addPeer(client.newPeer("peer", "grpc://192.168.0.101:7051"));
         // 指定排序节点地址, 无论是后面执行查询还是更新都必须指定排序节点
-        channel.addOrderer(client.newOrderer("orderer", "grpc://192.168.0.108:7050"));
+        channel.addOrderer(client.newOrderer("orderer", "grpc://192.168.0.101:7050"));
         channel.initialize();
 
         return channel;

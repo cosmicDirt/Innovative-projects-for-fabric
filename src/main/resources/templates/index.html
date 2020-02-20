@@ -26,9 +26,20 @@
         methods: {
             test: function () {
 
-                axios.post('/register', {
-                    name:"stu1",
-                    password:"stu1"
+                axios.post('/AddAComment', {
+                    name:"CAR2",
+                    password:"tea1",
+                    stuNumber:"222",
+                    teaNumber:"111",
+                    identity:"student",
+                    proID:"123",
+                    info:"测试用",
+                    stuName:"member",
+                    subproID:"1997496760",
+                    userName:"特约评论员",
+                    userAvatar:"e",
+                    content:"这是一条评论",
+                    time:"2012-2-2"
                 }).then(function (response) {
                     this.res=response.data.details;
                 }.bind(this));

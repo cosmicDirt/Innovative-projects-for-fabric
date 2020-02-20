@@ -32,7 +32,7 @@ public class HFJavaExample {
     public static void main(String[] args) throws Exception {
         // create fabric-ca client
 
-        HFCAClient caClient = getHfCaClient("http://192.168.0.108:7054", null);
+        HFCAClient caClient = getHfCaClient("http://192.168.0.101:7054", null);
 
         // enroll or load admin
         HFUser admin = getAdmin(caClient);
@@ -52,11 +52,11 @@ public class HFJavaExample {
         log.info("Channel: " + channel.getName());
 
         // query alll account list
-        queryBlockChain(client, "queryCar");
+        //queryBlockChain(client, "queryCar");
 
 
         //update
-        //invokeBlockChain(client, "update", "ACCOUNT1", "jill_1");
+        invokeBlockChain(client, "createStudent", "ACCOUNT1", "jill_1","e");
 
         // query by condition
         //queryBlockChain(client, "query", "ACCOUNT1");
@@ -66,7 +66,7 @@ public class HFJavaExample {
 
     public static HFClient getClient() throws Exception{
         // create fabric-ca client
-        HFCAClient caClient = getHfCaClient("http://192.168.0.108:7054", null);
+        HFCAClient caClient = getHfCaClient("http://192.168.0.101:7054", null);
         // enroll or load admin
         HFUser admin = getAdmin(caClient);
         // get HFC client instance
@@ -116,16 +116,16 @@ public class HFJavaExample {
         // get channel instance from client
         Channel channel = client.getChannel("mychannel");
         // create chaincode request
-        QueryByChaincodeRequest req = client.newQueryProposalRequest();
+        TransactionProposalRequest req = client.newTransactionProposalRequest();
         // build cc id providing the chaincode name. Version is omitted here.
         ChaincodeID cid = ChaincodeID.newBuilder().setName("fabcar").build();
-        String key="CAR1";
+        String key="CAR3";
 
         req.setChaincodeID(cid);
-        req.setFcn("queryCar");
-        req.setArgs(new String[] { key });
+        req.setFcn("createStudent");
+        req.setArgs(new String[] { key,key,key });
         System.out.println("Querying for " + key);
-        Collection<ProposalResponse> res = channel.queryByChaincode(req);
+        Collection<ProposalResponse> res = channel.sendTransactionProposal(req);
         // display response
         for (ProposalResponse pres : res) {
             String stringResponse = new String(pres.getChaincodeActionResponsePayload());
@@ -144,13 +144,13 @@ public class HFJavaExample {
     static Channel getChannel(HFClient client) throws InvalidArgumentException, TransactionException {
         // initialize channel
         // peer name and endpoint in fabcar network
-        Peer peer = client.newPeer("peer1", "grpc://192.168.0.108:7051");
-        // Peer peer = client.newPeer("peer1", "grpc://192.168.0.108:8051");
+        Peer peer = client.newPeer("peer1", "grpc://192.168.0.101:7051");
+        // Peer peer = client.newPeer("peer1", "grpc://192.168.0.101:8051");
 
         // eventhub name and endpoint in fabcar network
-        //EventHub eventHub = client.newEventHub("eventhub01", "grpc://192.168.0.108:7053");
+        //EventHub eventHub = client.newEventHub("eventhub01", "grpc://192.168.0.101:7053");
         // orderer name and endpoint in fabcar network
-        Orderer orderer = client.newOrderer("orderer", "grpc://192.168.0.108:7050");
+        Orderer orderer = client.newOrderer("orderer", "grpc://192.168.0.101:7050");
         // channel name in fabcar network
         Channel channel = client.newChannel("mychannel");
         channel.addPeer(peer);

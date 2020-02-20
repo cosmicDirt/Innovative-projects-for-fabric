@@ -25,7 +25,6 @@ public class RegisterController {
         Map<String, Object> map = new HashMap<String, Object>();
 
         if(data.containsKey("name")&&data.containsKey("password")) {
-            String name=data.get("name");
             Gson gson=new Gson();
 
             HFClient client= HFJavaExample.getClient();
@@ -34,8 +33,11 @@ public class RegisterController {
             ChaincodeID cid = ChaincodeID.newBuilder().setName("fabcar").build();
 
             req.setChaincodeID(cid);
-            req.setFcn("queryStudentByName");
-            req.setArgs(new String[] { name });
+            if (data.get("identity").equals("student"))
+                req.setFcn("queryStudentByName");
+            else
+                req.setFcn("queryTeacherByName");
+            req.setArgs(new String[] { data.get("name") });
             Collection<ProposalResponse> res = channel.queryByChaincode(req);
             for (ProposalResponse pres : res) {
                 stringResponse = new String(pres.getChaincodeActionResponsePayload());
@@ -47,9 +49,21 @@ public class RegisterController {
                 details="用户名已存在";
             }
             else {
-                req.setFcn("createStudent");
-                req.setArgs(new String[]{data.get("name"),data.get("stuNumber"),data.get("password")});
-                channel.queryByChaincode(req);
+                TransactionProposalRequest req1 = client.newTransactionProposalRequest();
+                req1.setChaincodeID(cid);
+
+                if(data.get("identity").equals("student")) {
+                    req1.setFcn("createStudent");
+                    req1.setArgs(new String[]{data.get("name"), data.get("stuNumber"), data.get("password")});
+                }
+                else
+                {
+                    req1.setFcn("createTeacher");
+                    req1.setArgs(new String[]{data.get("name"),data.get("teaNumber"), data.get("password")});
+                }
+
+                Collection<ProposalResponse> res1 = channel.sendTransactionProposal(req1);
+                channel.sendTransaction(res1);
                 status="right";
                 details="注册成功";
             }

@@ -32,16 +32,14 @@ public class SubprojectController {
 
             HFClient client= HFJavaExample.getClient();
             Channel channel = client.getChannel("mychannel");
-            QueryByChaincodeRequest req = client.newQueryProposalRequest();
+            TransactionProposalRequest req = client.newTransactionProposalRequest();
             ChaincodeID cid = ChaincodeID.newBuilder().setName("fabcar").build();
 
             req.setChaincodeID(cid);
             req.setFcn("createSubproject");
             req.setArgs(new String[] { subproID,subproID,data.get("proID"),data.get("info") });
-            Collection<ProposalResponse> res = channel.queryByChaincode(req);
-            for (ProposalResponse pres : res) {
-                stringResponse = new String(pres.getChaincodeActionResponsePayload());
-            }
+            Collection<ProposalResponse> res = channel.sendTransactionProposal(req);
+            channel.sendTransaction(res);
             status="right";
             map.put("subproID",subproID);
         }
@@ -68,16 +66,15 @@ public class SubprojectController {
 
             HFClient client= HFJavaExample.getClient();
             Channel channel = client.getChannel("mychannel");
-            QueryByChaincodeRequest req = client.newQueryProposalRequest();
+            TransactionProposalRequest req = client.newTransactionProposalRequest();
             ChaincodeID cid = ChaincodeID.newBuilder().setName("fabcar").build();
 
             req.setChaincodeID(cid);
             req.setFcn("deleteSubproject");
             req.setArgs(new String[] { data.get("subproID") });
-            Collection<ProposalResponse> res = channel.queryByChaincode(req);
-            for (ProposalResponse pres : res) {
-                stringResponse = new String(pres.getChaincodeActionResponsePayload());
-            }
+            Collection<ProposalResponse> res = channel.sendTransactionProposal(req);
+            channel.sendTransaction(res);
+
             status="right";
         }
         else
@@ -103,16 +100,15 @@ public class SubprojectController {
 
             HFClient client= HFJavaExample.getClient();
             Channel channel = client.getChannel("mychannel");
-            QueryByChaincodeRequest req = client.newQueryProposalRequest();
+            TransactionProposalRequest req = client.newTransactionProposalRequest();
             ChaincodeID cid = ChaincodeID.newBuilder().setName("fabcar").build();
 
             req.setChaincodeID(cid);
             req.setFcn("joinSubproject");
             req.setArgs(new String[] { data.get("subproID"),data.get("stuName") });
-            Collection<ProposalResponse> res = channel.queryByChaincode(req);
-            for (ProposalResponse pres : res) {
-                stringResponse = new String(pres.getChaincodeActionResponsePayload());
-            }
+            Collection<ProposalResponse> res = channel.sendTransactionProposal(req);
+            channel.sendTransaction(res);
+
             status="right";
         }
         else
@@ -138,16 +134,15 @@ public class SubprojectController {
 
             HFClient client= HFJavaExample.getClient();
             Channel channel = client.getChannel("mychannel");
-            QueryByChaincodeRequest req = client.newQueryProposalRequest();
+            TransactionProposalRequest req = client.newTransactionProposalRequest();
             ChaincodeID cid = ChaincodeID.newBuilder().setName("fabcar").build();
 
             req.setChaincodeID(cid);
             req.setFcn("quitSubproject");
             req.setArgs(new String[] { data.get("subproID"),data.get("stuName") });
-            Collection<ProposalResponse> res = channel.queryByChaincode(req);
-            for (ProposalResponse pres : res) {
-                stringResponse = new String(pres.getChaincodeActionResponsePayload());
-            }
+            Collection<ProposalResponse> res = channel.sendTransactionProposal(req);
+            channel.sendTransaction(res);
+
             status="right";
         }
         else
@@ -173,16 +168,15 @@ public class SubprojectController {
 
             HFClient client= HFJavaExample.getClient();
             Channel channel = client.getChannel("mychannel");
-            QueryByChaincodeRequest req = client.newQueryProposalRequest();
+            TransactionProposalRequest req = client.newTransactionProposalRequest();
             ChaincodeID cid = ChaincodeID.newBuilder().setName("fabcar").build();
 
             req.setChaincodeID(cid);
             req.setFcn("AddAComment");
             req.setArgs(new String[] { data.get("subproID"),data.get("userName"),data.get("userAvatar"),data.get("content"),data.get("time") });
-            Collection<ProposalResponse> res = channel.queryByChaincode(req);
-            for (ProposalResponse pres : res) {
-                stringResponse = new String(pres.getChaincodeActionResponsePayload());
-            }
+            Collection<ProposalResponse> res = channel.sendTransactionProposal(req);
+            channel.sendTransaction(res);
+
             status="right";
         }
         else

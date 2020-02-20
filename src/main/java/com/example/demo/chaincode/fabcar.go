@@ -29,7 +29,7 @@ package main
  * 2 specific Hyperledger Fabric specific libraries for Smart Contracts
  */
 import (
-	"bytes"
+	//"bytes"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -46,6 +46,15 @@ type SmartContract struct {
 type Student struct {
 	Name      string `json:"name"`
 	StuNumber string `json:"stuNumber"`
+	Password  string `json:"password"`
+	Gender    string `json:"gender"`
+	Phone     string `json:"phone"`
+	Email     string `json:"email"`
+}
+
+type Teacher struct {
+	Name      string `json:"name"`
+	TeaNumber string `json:"teaNumber"`
 	Password  string `json:"password"`
 	Gender    string `json:"gender"`
 	Phone     string `json:"phone"`
@@ -86,10 +95,16 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 	// Route to the appropriate handler function to interact with the ledger appropriately
 	if function == "queryStudentByName" {
 		return s.queryStudentByName(APIstub, args)
+	} else if function == "queryTeacherByName" {
+		return s.queryTeacherByName(APIstub, args)
+	} else if function == "queryByKey" {
+		return s.queryByKey(APIstub, args)
 	} else if function == "initLedger" {
 		return s.initLedger(APIstub)
 	} else if function == "createStudent" {
 		return s.createStudent(APIstub, args)
+	} else if function == "createTeacher" {
+		return s.createTeacher(APIstub, args)
 	} else if function=="createSubproject"{
 		return s.createSubproject(APIstub, args)
 	} else if function=="deleteSubproject" {
@@ -113,6 +128,26 @@ func (s *SmartContract) queryStudentByName(APIstub shim.ChaincodeStubInterface, 
 
 	studentAsBytes, _ := APIstub.GetState(args[0])
 	return shim.Success(studentAsBytes)
+}
+
+func (s *SmartContract) queryTeacherByName(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1")
+	}
+
+	teacherAsBytes, _ := APIstub.GetState(args[0])
+	return shim.Success(teacherAsBytes)
+}
+
+func (s *SmartContract) queryByKey(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1")
+	}
+
+	valueAsBytes, _ := APIstub.GetState(args[0])
+	return shim.Success(valueAsBytes)
 }
 
 func (s *SmartContract) initLedger(APIstub shim.ChaincodeStubInterface) sc.Response {
@@ -143,6 +178,20 @@ func (s *SmartContract) createStudent(APIstub shim.ChaincodeStubInterface, args 
 
 	stuAsBytes, _ := json.Marshal(stu)
 	APIstub.PutState(args[0], stuAsBytes)
+
+	return shim.Success(nil)
+}
+
+func (s *SmartContract) createTeacher(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 3 {
+		return shim.Error("Incorrect number of arguments. Expecting 3")
+	}
+
+	var tea = Teacher{Name:args[0],TeaNumber: args[1], Password: args[2]}
+
+	teaAsBytes, _ := json.Marshal(tea)
+	APIstub.PutState(args[0], teaAsBytes)
 
 	return shim.Success(nil)
 }

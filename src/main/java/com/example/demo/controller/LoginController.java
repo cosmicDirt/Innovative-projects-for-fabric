@@ -21,31 +21,32 @@ public class LoginController {
         Map<String, Object> map = new HashMap<>();
         String status = "";
         String details = "";
-        String stringResponse="";
+        String stringResponse = "";
 
-        if (data.containsKey("name")&&data.containsKey("password")) {
-            String name = data.get("name");
-            Gson gson=new Gson();
+        if (data.containsKey("name") && data.containsKey("password") && data.containsKey("identity")) {
+            Gson gson = new Gson();
 
-            HFClient client=HFJavaExample.getClient();
+            HFClient client = HFJavaExample.getClient();
             Channel channel = client.getChannel("mychannel");
             QueryByChaincodeRequest req = client.newQueryProposalRequest();
             ChaincodeID cid = ChaincodeID.newBuilder().setName("fabcar").build();
 
             req.setChaincodeID(cid);
-            req.setFcn("queryStudentName");
-            req.setArgs(new String[] { name });
+            if (data.get("identity").equals("student"))
+                req.setFcn("queryStudentName");
+            else
+                req.setFcn("queryTeacherByName");
+            req.setArgs(new String[]{data.get("name")});
             Collection<ProposalResponse> res = channel.queryByChaincode(req);
             for (ProposalResponse pres : res) {
                 stringResponse = new String(pres.getChaincodeActionResponsePayload());
             }
-            Map<String,String> result=gson.fromJson(stringResponse,Map.class);
+            Map<String, String> result = gson.fromJson(stringResponse, Map.class);
 
             if (result.isEmpty()) {
                 status = "wrong";
                 details = "用户不存在";
-            }
-            else if (!result.get("password").equals(data.get("password"))) {
+            } else if (!result.get("password").equals(data.get("password"))) {
                 status = "wrong";
                 details = "密码错误";
             }
