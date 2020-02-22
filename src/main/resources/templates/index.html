@@ -26,7 +26,7 @@
         methods: {
             test: function () {
 
-                axios.post('/AddAComment', {
+                axios.post('/queryHistoryOfSubproject', {
                     name:"CAR2",
                     password:"tea1",
                     stuNumber:"222",
@@ -35,11 +35,12 @@
                     proID:"123",
                     info:"测试用",
                     stuName:"member",
-                    subproID:"1997496760",
+                    subproID:"-193538175",
                     userName:"特约评论员",
                     userAvatar:"e",
-                    content:"这是一条评论",
-                    time:"2012-2-2"
+                    content:"这是第二条评论",
+                    time:"2012-2-2",
+                    subproTime:"2022-2-2"
                 }).then(function (response) {
                     this.res=response.data.details;
                 }.bind(this));
