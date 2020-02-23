@@ -32,7 +32,7 @@ public class HFJavaExample {
     public static void main(String[] args) throws Exception {
         // create fabric-ca client
 
-        HFCAClient caClient = getHfCaClient("http://192.168.0.101:7054", null);
+        HFCAClient caClient = getHfCaClient("http://49.235.226.118:7054", null);
 
         // enroll or load admin
         HFUser admin = getAdmin(caClient);
@@ -66,7 +66,7 @@ public class HFJavaExample {
 
     public static HFClient getClient() throws Exception{
         // create fabric-ca client
-        HFCAClient caClient = getHfCaClient("http://192.168.0.101:7054", null);
+        HFCAClient caClient = getHfCaClient("http://49.235.226.118:7054", null);
         // enroll or load admin
         HFUser admin = getAdmin(caClient);
         // get HFC client instance
@@ -144,13 +144,13 @@ public class HFJavaExample {
     static Channel getChannel(HFClient client) throws InvalidArgumentException, TransactionException {
         // initialize channel
         // peer name and endpoint in fabcar network
-        Peer peer = client.newPeer("peer1", "grpc://192.168.0.101:7051");
-        // Peer peer = client.newPeer("peer1", "grpc://192.168.0.101:8051");
+        Peer peer = client.newPeer("peer1", "grpc://49.235.226.118:7051");
+        // Peer peer = client.newPeer("peer1", "grpc://49.235.226.118:8051");
 
         // eventhub name and endpoint in fabcar network
-        //EventHub eventHub = client.newEventHub("eventhub01", "grpc://192.168.0.101:7053");
+        //EventHub eventHub = client.newEventHub("eventhub01", "grpc://49.235.226.118:7053");
         // orderer name and endpoint in fabcar network
-        Orderer orderer = client.newOrderer("orderer", "grpc://192.168.0.101:7050");
+        Orderer orderer = client.newOrderer("orderer", "grpc://49.235.226.118:7050");
         // channel name in fabcar network
         Channel channel = client.newChannel("mychannel");
         channel.addPeer(peer);

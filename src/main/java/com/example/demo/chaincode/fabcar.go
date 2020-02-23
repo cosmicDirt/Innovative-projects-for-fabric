@@ -76,6 +76,23 @@ type Subproject struct {
 	Comment   []Comment `json:"comment"`
 }
 
+type Project struct{
+	ProID string `json:"proID"`
+	StuNum string `json:"stuNum"`
+	Info string `json:"info"`
+	StartTime string `json:"start_time"`
+	EndTime string `json:"end_time"`
+	LeaderName string `json:"leader_name"`
+	TeacherName string `json:"teacher_name"`
+}
+
+type StuInPro struct{
+	ID string `json:"id"`
+	ProID string `json:"proID"`
+	StuName string `json:"stuName"`
+	RelativeScore string `json:"relative_score"`
+	FinalScore string `json:"final_score"`
+}
 /*
  * The Init method is called when the Smart Contract "fabcar" is instantiated by the blockchain network
  * Best practice is to have any Ledger initialization in separate function -- see initLedger()
@@ -115,6 +132,14 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 		return s.quitSubproject(APIstub,args)
 	} else if function=="AddAComment"{
 		return s.AddAComment(APIstub,args)
+	} else if function=="createProject"{
+		return s.createProject(APIstub,args)
+	} else if function=="deleteProject"{
+		return s.deleteProject(APIstub,args)
+	} else if function=="quitProject"{
+		return s.quitProject(APIstub,args)
+	} else if function=="AddProMem"{
+		return s.AddProMem(APIstub,args)
 	}
 
 	return shim.Error("Invalid Smart Contract function name.")
@@ -291,6 +316,55 @@ func (s *SmartContract) AddAComment(APIstub shim.ChaincodeStubInterface, args []
 
 	return shim.Success(nil)
 }
+
+func (s *SmartContract) createProject(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	var pro Project
+	if len(args) != 7 {
+		return shim.Error("Incorrect number of arguments. Expecting 4+")
+	} else {
+		pro = Project{ProID: args[1],Info: args[2],LeaderName:args[3],TeacherName:args[4],StartTime:args[5],EndTime:args[6]}
+		proAsBytes, _ := json.Marshal(pro)
+		APIstub.PutState(args[0], proAsBytes)
+
+		return shim.Success(nil)
+	}
+}
+
+func (s *SmartContract) deleteProject(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1")
+	}
+	APIstub.DelState(args[0])
+	return shim.Success(nil)
+}
+
+func (s *SmartContract) quitProject(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 2 {
+		return shim.Error("Incorrect number of arguments. Expecting 2")
+	}
+
+	APIstub.DelState(args[0])
+
+	return shim.Success(nil)
+}
+
+func (s *SmartContract) AddProMem(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	var sip StuInPro
+	if len(args) != 4 {
+		return shim.Error("Incorrect number of arguments. Expecting 5")
+	}else {
+		sip = StuInPro{ID:args[1],ProID: args[2],StuName: args[3],FinalScore:0,RelativeScore:0}
+		sipAsBytes, _ := json.Marshal(sip)
+		APIstub.PutState(args[0], sipAsBytes)
+
+		return shim.Success(nil)
+	}
+}
+
 /*func (s *SmartContract) queryAllCars(APIstub shim.ChaincodeStubInterface) sc.Response {
 
 	startKey := "CAR0"
