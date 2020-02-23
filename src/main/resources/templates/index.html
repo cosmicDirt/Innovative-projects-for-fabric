@@ -8,8 +8,14 @@
 <body>
 <div id="test">
     <el-button type="primary" @click="test">测试</el-button>
-    <p>{{this.res}}</p>
+    <el-button type="primary" @click="download">测试</el-button>
+    <div class="tip">选择文件：</div>
+    <input class="file" type="file" title="请选择文件" value="请选择文件">
+    <div class="tip">输入姓名：</div>
+    <input class="inputS" type="text" v-model="name" placeholder="请在此输入姓名">
+    <button class="submit" @click="submit">提交</button>
 </div>
+
 </body>
 
 <!-- import Vue before Element -->
@@ -18,32 +24,57 @@
 <script src="https://unpkg.com/element-ui/lib/index.js"></script>
 <script src="js/axios.min.js"></script>
 <script>
+    var formData = new FormData() // 声明一个FormData对象
+    var formData = new window.FormData() // vue 中使用 window.FormData(),否则会报 'FormData isn't definded'
+
+
     var app = new Vue({
         el: '#test',
         data: {
-            res: {}
+            res: {},
+            name: ""
         },
         methods: {
             test: function () {
 
                 axios.post('/queryHistoryOfSubproject', {
-                    name:"CAR2",
-                    password:"tea1",
-                    stuNumber:"222",
-                    teaNumber:"111",
-                    identity:"student",
-                    proID:"123",
-                    info:"测试用",
-                    stuName:"member",
-                    subproID:"-193538175",
-                    userName:"特约评论员",
-                    userAvatar:"e",
-                    content:"这是第二条评论",
-                    time:"2012-2-2",
-                    subproTime:"2022-2-2"
+                    name: "CAR2",
+                    password: "tea1",
+                    stuNumber: "222",
+                    teaNumber: "111",
+                    identity: "student",
+                    proID: "123",
+                    info: "测试用",
+                    stuName: "member",
+                    subproID: "-193538175",
+                    userName: "特约评论员",
+                    userAvatar: "e",
+                    content: "这是第二条评论",
+                    time: "2012-2-2",
+                    subproTime: "2022-2-2"
                 }).then(function (response) {
-                    this.res=response.data.details;
+                    this.res = response.data.details;
                 }.bind(this));
+            },
+            submit: function () {
+                formData.append('file', document.querySelector('input[type=file]').files[0]) // 'file' 这个名字要和后台获取文件的名字一样;
+                formData.append('user', this.name)
+                //'userfile'是formData这个对象的键名
+                axios({
+                    url: '/uploadwork',   //****: 你的ip地址
+                    data: formData,
+                    method: 'post',
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        // 'Access-Control-Allow-Origin': 'http://127.0.0.1:8080'
+                        //这里是为了解决跨域问题，但是博主并没有用这种方式解决。后面会给出解决方案
+                    }
+                }).then((res) => {
+                    console.log(res.data);
+                }) // 发送请求
+            },
+            download:function () {
+
             }
         }
     })

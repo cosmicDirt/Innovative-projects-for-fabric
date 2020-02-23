@@ -69,13 +69,21 @@ type Comment struct {
 	Time       string `json:"time"`
 }
 
+type Appendix struct {
+	FileName    string `json:"fileName"`
+	Path        string `json:"path"`
+	Description string `json:"description"`
+	UpTime        string `json:"upTime"`
+}
+
 type Subproject struct {
-	SubproID   string    `json:"subproID"`
-	ProID      string    `json:"proID"`
-	SubproTime string    `json:"subproTime"`
-	Info       string    `json:"info"`
-	Member     []string  `json:"member"`
-	Comment    []Comment `json:"comment"`
+	SubproID   string     `json:"subproID"`
+	ProID      string     `json:"proID"`
+	SubproTime string     `json:"subproTime"`
+	Info       string     `json:"info"`
+	Member     []string   `json:"member"`
+	Comment    []Comment  `json:"comment"`
+	Appendix   []Appendix `json:"file"`
 }
 
 /*
@@ -407,7 +415,6 @@ func (s *SmartContract) changeCarOwner(APIstub shim.ChaincodeStubInterface, args
 
 // The main function is only relevant in unit test mode. Only included here for completeness.
 
-
 func (s *SmartContract) getQueryResultForQueryString(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	resultsIterator, err := stub.GetQueryResult(args[0])
 	defer resultsIterator.Close()
@@ -417,10 +424,10 @@ func (s *SmartContract) getQueryResultForQueryString(stub shim.ChaincodeStubInte
 	// buffer is a JSON array containing QueryRecords
 	var buffer bytes.Buffer
 	buffer.WriteString("[")
-    bArrayMemberAlreadyWritten := false
+	bArrayMemberAlreadyWritten := false
 	for resultsIterator.HasNext() {
 		queryResponse,
-			err := resultsIterator.Next()
+		err := resultsIterator.Next()
 		if err != nil {
 			return shim.Error(err.Error())
 		}
