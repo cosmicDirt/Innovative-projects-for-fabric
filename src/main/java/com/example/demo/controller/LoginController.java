@@ -33,7 +33,7 @@ public class LoginController {
 
             req.setChaincodeID(cid);
             if (data.get("identity").equals("student"))
-                req.setFcn("queryStudentName");
+                req.setFcn("queryStudentByName");
             else
                 req.setFcn("queryTeacherByName");
             req.setArgs(new String[]{data.get("name")});
