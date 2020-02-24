@@ -87,19 +87,18 @@ type Subproject struct {
 }
 
 type Project struct{
-	ProID string `json:"proID"`
-	StuNum string `json:"stuNum"`
-	Info string `json:"info"`
-	StartTime string `json:"start_time"`
-	EndTime string `json:"end_time"`
-	LeaderName string `json:"leader_name"`
-	TeacherName string `json:"teacher_name"`
+	ProjectID string `json:"project_id"`
+	ProInfo string `json:"pro_info"`
+	ProStartTime string `json:"pro_start_time"`
+	ProEndTime string `json:"pro_end_time"`
+	ProLeaderName string `json:"pro_leader_name"`
+	ProTeacherName string `json:"pro_teacher_name"`
 }
 
 type StuInPro struct{
-	ID string `json:"id"`
-	ProID string `json:"proID"`
-	StuName string `json:"stuName"`
+	SipID string `json:"sip_id"`
+	SipProID string `json:"sip_pro_id"`
+	SipStuName string `json:"sip_stu_name"`
 	RelativeScore string `json:"relative_score"`
 	FinalScore string `json:"final_score"`
 }
@@ -140,12 +139,6 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 		return s.createSubproject(APIstub, args)
 	} else if function == "deleteSubproject" {
 		return s.deleteSubproject(APIstub, args)
-	} else if function=="joinSubproject"{
-		return s.joinSubproject(APIstub,args)
-	} else if function=="quitSubproject"{
-		return s.quitSubproject(APIstub,args)
-	} else if function=="AddAComment"{
-		return s.AddAComment(APIstub,args)
 	} else if function=="createProject"{
 		return s.createProject(APIstub,args)
 	} else if function=="deleteProject"{
@@ -402,7 +395,7 @@ func (s *SmartContract) createProject(APIstub shim.ChaincodeStubInterface, args 
 	if len(args) != 7 {
 		return shim.Error("Incorrect number of arguments. Expecting 4+")
 	} else {
-		pro = Project{ProID: args[1],Info: args[2],LeaderName:args[3],TeacherName:args[4],StartTime:args[5],EndTime:args[6]}
+		pro = Project{ProjectID: args[1],ProInfo: args[2],ProLeaderName:args[3],ProTeacherName:args[4],ProStartTime:args[5],ProEndTime:args[6]}
 		proAsBytes, _ := json.Marshal(pro)
 		APIstub.PutState(args[0], proAsBytes)
 
@@ -426,7 +419,6 @@ func (s *SmartContract) quitProject(APIstub shim.ChaincodeStubInterface, args []
 	}
 
 	APIstub.DelState(args[0])
-
 	return shim.Success(nil)
 }
 
@@ -436,7 +428,7 @@ func (s *SmartContract) AddProMem(APIstub shim.ChaincodeStubInterface, args []st
 	if len(args) != 4 {
 		return shim.Error("Incorrect number of arguments. Expecting 5")
 	}else {
-		sip = StuInPro{ID:args[1],ProID: args[2],StuName: args[3],FinalScore:0,RelativeScore:0}
+		sip = StuInPro{SipID:args[1],SipProID: args[2],SipStuName: args[3],FinalScore:0,RelativeScore:0}
 		sipAsBytes, _ := json.Marshal(sip)
 		APIstub.PutState(args[0], sipAsBytes)
 

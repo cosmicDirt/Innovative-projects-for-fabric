@@ -211,4 +211,91 @@ public class ProjectController {
         map.put("details",details);
         return map;
     }
+
+    @PostMapping("/sesrchProinfo")
+    @ResponseBody
+    public Map<String,Object> sesrchProinfo(@RequestBody Map<String, String> data) throws Exception {
+        String status="";
+        String details="";
+        String stringResponse="";
+
+        Map<String, Object> map = new HashMap<String, Object>();
+
+        if(data.containsKey("ProID")) {
+
+            Gson gson=new Gson();
+
+            HFClient client= HFJavaExample.getClient();
+            Channel channel = client.getChannel("mychannel");
+            TransactionProposalRequest req = client.newTransactionProposalRequest();
+            ChaincodeID cid = ChaincodeID.newBuilder().setName("fabcar").build();
+
+            req.setChaincodeID(cid);
+            req.setFcn("queryStudentByName");
+            req.setArgs(new String[] { data.get("ProID") });
+            Collection<ProposalResponse> res = channel.sendTransactionProposal(req);
+            channel.sendTransaction(res);
+            for (ProposalResponse pres : res) {
+                stringResponse = new String(pres.getChaincodeActionResponsePayload());
+            }
+            Map<String, String> result = gson.fromJson(stringResponse, Map.class);
+
+            if (result.isEmpty()) {
+                status = "wrong";
+                details = "用户不存在";
+            }
+            else {
+                map.put("stuNumber", result.get("stuName"));
+                map.put("gender", result.get("gender"));
+                map.put("email", result.get("email"));
+                map.put("phone", "phone");
+                status = "right";
+            }
+            status="right";
+        }
+        else
+        {
+            status="wrong";
+            details="连接失败";
+        }
+        map.put("status",status);
+        map.put("details",details);
+        return map;
+    }
+
+    @PostMapping("/sesrchSIPByStu")
+    @ResponseBody
+    public Map<String,Object> sesrchSIPByStu(@RequestBody Map<String, String> data) throws Exception {
+        String status="";
+        String details="";
+        String stringResponse="";
+
+        Map<String, Object> map = new HashMap<String, Object>();
+
+        if(data.containsKey("stuName")) {
+            Gson gson = new Gson();
+            String query = "{\"selector\":{\"sip_stu_name\":\"" + data.get("stuName") + "\"}}";
+
+            HFClient client = HFJavaExample.getClient();
+            Channel channel = client.getChannel("mychannel");
+            QueryByChaincodeRequest req = client.newQueryProposalRequest();
+            ChaincodeID cid = ChaincodeID.newBuilder().setName("fabcar").build();
+
+            req.setChaincodeID(cid);
+            req.setFcn("getQueryResultForQueryString");
+            req.setArgs(new String[]{query});
+            Collection<ProposalResponse> res = channel.queryByChaincode(req);
+            for (ProposalResponse pres : res) {
+                stringResponse = new String(pres.getChaincodeActionResponsePayload());
+            }
+            status = "right";
+            map.put("result", stringResponse);
+        } else {
+            status = "wrong";
+            details = "连接失败";
+        }
+        map.put("status", status);
+        map.put("details", details);
+        return map;
+    }
 }
