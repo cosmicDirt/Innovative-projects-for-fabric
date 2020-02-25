@@ -54,12 +54,12 @@ public class RegisterController {
 
                 if(data.get("identity").equals("student")) {
                     req1.setFcn("createStudent");
-                    req1.setArgs(new String[]{data.get("name"), data.get("stuNumber"), data.get("password")});
+                    req1.setArgs(new String[]{data.get("name"), data.get("stuNumber"), data.get("password"), data.get("gender"), data.get("university"),data.get("major")});
                 }
                 else
                 {
                     req1.setFcn("createTeacher");
-                    req1.setArgs(new String[]{data.get("name"),data.get("teaNumber"), data.get("password")});
+                    req1.setArgs(new String[]{data.get("name"),data.get("teaNumber"), data.get("password"), data.get("gender"), data.get("university"),data.get("major")});
                 }
 
                 Collection<ProposalResponse> res1 = channel.sendTransactionProposal(req1);

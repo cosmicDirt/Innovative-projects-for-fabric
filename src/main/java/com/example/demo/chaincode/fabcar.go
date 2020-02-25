@@ -45,21 +45,25 @@ type SmartContract struct {
 
 // Define the car structure, with 4 properties.  Structure tags are used by encoding/json library
 type Student struct {
-	Name      string `json:"name"`
-	StuNumber string `json:"stuNumber"`
-	Password  string `json:"password"`
-	Gender    string `json:"gender"`
-	Phone     string `json:"phone"`
-	Email     string `json:"email"`
+	Name       string `json:"name"`
+	StuNumber  string `json:"stuNumber"`
+	Password   string `json:"password"`
+	Gender     string `json:"gender"`
+	University string `json:"university"`
+	Major      string `json:"major"`
+	Phone      string `json:"phone"`
+	Email      string `json:"email"`
 }
 
 type Teacher struct {
-	Name      string `json:"name"`
-	TeaNumber string `json:"teaNumber"`
-	Password  string `json:"password"`
-	Gender    string `json:"gender"`
-	Phone     string `json:"phone"`
-	Email     string `json:"email"`
+	Name       string `json:"name"`
+	TeaNumber  string `json:"teaNumber"`
+	Password   string `json:"password"`
+	Gender     string `json:"gender"`
+	University string `json:"university"`
+	Major      string `json:"major"`
+	Phone      string `json:"phone"`
+	Email      string `json:"email"`
 }
 
 type Comment struct {
@@ -67,23 +71,27 @@ type Comment struct {
 	UserAvatar string `json:"userAvatar"`
 	Content    string `json:"content"`
 	Time       string `json:"time"`
+	Score      string `json:"score"`
 }
 
 type Appendix struct {
 	FileName    string `json:"fileName"`
 	Path        string `json:"path"`
 	Description string `json:"description"`
-	UpTime        string `json:"upTime"`
+	UpUser      string `json:"upUser"`
+	UpTime      string `json:"upTime"`
 }
 
 type Subproject struct {
-	SubproID   string     `json:"subproID"`
-	ProID      string     `json:"proID"`
-	SubproTime string     `json:"subproTime"`
-	Info       string     `json:"info"`
-	Member     []string   `json:"member"`
-	Comment    []Comment  `json:"comment"`
-	Appendix   []Appendix `json:"file"`
+	SubproID        string     `json:"subproID"`
+	ProID           string     `json:"proID"`
+	SubproStartTime string     `json:"subproStartTime"`
+	SubproEndTime   string     `json:"subproEndTime"`
+	Difficulty      string     `json:"difficulty"`
+	Info            string     `json:"info"`
+	Member          []string   `json:"member"`
+	Comment         []Comment  `json:"comment"`
+	Appendix        []Appendix `json:"appendix"`
 }
 
 /*
@@ -127,8 +135,14 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 		return s.joinSubproject(APIstub, args)
 	} else if function == "quitSubproject" {
 		return s.quitSubproject(APIstub, args)
-	} else if function == "AddAComment" {
-		return s.AddAComment(APIstub, args)
+	} else if function == "addComment" {
+		return s.addComment(APIstub, args)
+	} else if function == "uploadAppendixForSub" {
+		return s.uploadAppendixForSub(APIstub, args)
+	} else if function == "queryAppendix" {
+		return s.queryAppendix(APIstub, args)
+	} else if function == "queryAllAppendixForSub" {
+		return s.queryAllAppendixForSub(APIstub, args)
 	}
 
 	return shim.Error("Invalid Smart Contract function name.")
@@ -245,11 +259,11 @@ func (s *SmartContract) initLedger(APIstub shim.ChaincodeStubInterface) sc.Respo
 
 func (s *SmartContract) createStudent(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-	if len(args) != 3 {
-		return shim.Error("Incorrect number of arguments. Expecting 3")
+	if len(args) != 6 {
+		return shim.Error("Incorrect number of arguments. Expecting 6")
 	}
 
-	var stu = Student{Name: args[0], StuNumber: args[1], Password: args[2]}
+	var stu = Student{Name: args[0], StuNumber: args[1], Password: args[2], Gender: args[3], University: args[4], Major: args[5]}
 
 	stuAsBytes, _ := json.Marshal(stu)
 	APIstub.PutState(args[0], stuAsBytes)
@@ -259,11 +273,11 @@ func (s *SmartContract) createStudent(APIstub shim.ChaincodeStubInterface, args 
 
 func (s *SmartContract) createTeacher(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-	if len(args) != 3 {
-		return shim.Error("Incorrect number of arguments. Expecting 3")
+	if len(args) != 6 {
+		return shim.Error("Incorrect number of arguments. Expecting 6")
 	}
 
-	var tea = Teacher{Name: args[0], TeaNumber: args[1], Password: args[2]}
+	var tea = Teacher{Name: args[0], TeaNumber: args[1], Password: args[2], Gender: args[3], University: args[4], Major: args[5]}
 
 	teaAsBytes, _ := json.Marshal(tea)
 	APIstub.PutState(args[0], teaAsBytes)
@@ -274,16 +288,16 @@ func (s *SmartContract) createTeacher(APIstub shim.ChaincodeStubInterface, args 
 func (s *SmartContract) createSubproject(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	var subpro Subproject
-	if len(args) < 4 {
-		return shim.Error("Incorrect number of arguments. Expecting 5+")
-	} else if len(args) == 4 {
-		subpro = Subproject{SubproID: args[0], ProID: args[1], SubproTime: args[2], Info: args[3]}
+	if len(args) < 6 {
+		return shim.Error("Incorrect number of arguments. Expecting 6+")
+	} else if len(args) == 6 {
+		subpro = Subproject{SubproID: args[0], ProID: args[1], SubproStartTime: args[2], SubproEndTime: args[3], Difficulty: args[4], Info: args[5]}
 	} else {
 		var str []string
-		for i := 4; i < len(args); i++ {
+		for i := 6; i < len(args); i++ {
 			str = append(str, args[i])
 		}
-		subpro = Subproject{SubproID: args[0], ProID: args[1], SubproTime: args[2], Info: args[3], Member: str}
+		subpro = Subproject{SubproID: args[0], ProID: args[1], SubproStartTime: args[2], SubproEndTime: args[3], Difficulty: args[4], Info: args[5], Member: str}
 	}
 	subproAsBytes, _ := json.Marshal(subpro)
 	APIstub.PutState(args[0], subproAsBytes)
@@ -347,12 +361,12 @@ func (s *SmartContract) quitSubproject(APIstub shim.ChaincodeStubInterface, args
 	return shim.Success(nil)
 }
 
-func (s *SmartContract) AddAComment(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+func (s *SmartContract) addComment(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-	if len(args) != 5 {
-		return shim.Error("Incorrect number of arguments. Expecting 5")
+	if len(args) != 6 {
+		return shim.Error("Incorrect number of arguments. Expecting 6")
 	}
-	var comment = Comment{UserName: args[1], UserAvatar: args[2], Content: args[3], Time: args[4]}
+	var comment = Comment{UserName: args[1], UserAvatar: args[2], Content: args[3], Time: args[4],Score:args[5]}
 	subproAsBytes1, _ := APIstub.GetState(args[0])
 	subpro := Subproject{}
 
@@ -365,55 +379,61 @@ func (s *SmartContract) AddAComment(APIstub shim.ChaincodeStubInterface, args []
 	return shim.Success(nil)
 }
 
-/*func (s *SmartContract) queryAllCars(APIstub shim.ChaincodeStubInterface) sc.Response {
-	startKey := "CAR0"
-	endKey := "CAR999"
-	resultsIterator, err := APIstub.GetStateByRange(startKey, endKey)
-	if err != nil {
-		return shim.Error(err.Error())
-	}
-	defer resultsIterator.Close()
-	// buffer is a JSON array containing QueryResults
-	var buffer bytes.Buffer
-	buffer.WriteString("[")
-	bArrayMemberAlreadyWritten := false
-	for resultsIterator.HasNext() {
-		queryResponse, err := resultsIterator.Next()
-		if err != nil {
-			return shim.Error(err.Error())
-		}
-		// Add a comma before array members, suppress it for the first array member
-		if bArrayMemberAlreadyWritten == true {
-			buffer.WriteString(",")
-		}
-		buffer.WriteString("{\"Key\":")
-		buffer.WriteString("\"")
-		buffer.WriteString(queryResponse.Key)
-		buffer.WriteString("\"")
-		buffer.WriteString(", \"Record\":")
-		// Record is a JSON object, so we write as-is
-		buffer.WriteString(string(queryResponse.Value))
-		buffer.WriteString("}")
-		bArrayMemberAlreadyWritten = true
-	}
-	buffer.WriteString("]")
-	fmt.Printf("- queryAllCars:\n%s\n", buffer.String())
-	return shim.Success(buffer.Bytes())
-}
-func (s *SmartContract) changeCarOwner(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
-	if len(args) != 2 {
-		return shim.Error("Incorrect number of arguments. Expecting 2")
-	}
-	carAsBytes, _ := APIstub.GetState(args[0])
-	car := Car{}
-	json.Unmarshal(carAsBytes, &car)
-	car.Owner = args[1]
-	carAsBytes, _ = json.Marshal(car)
-	APIstub.PutState(args[0], carAsBytes)
-	return shim.Success(nil)
-}*/
+func (s *SmartContract) uploadAppendixForSub(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-// The main function is only relevant in unit test mode. Only included here for completeness.
+	if len(args) != 6 {
+		return shim.Error("Incorrect number of arguments. Expecting 6")
+	}
+	var appendix = Appendix{FileName: args[1], Path: args[2], Description: args[3], UpUser: args[4], UpTime: args[5]}
+	subproAsBytes1, _ := APIstub.GetState(args[0])
+	subpro := Subproject{}
+
+	json.Unmarshal(subproAsBytes1, &subpro)
+	subpro.Appendix = append(subpro.Appendix, appendix)
+
+	subproAsBytes2, _ := json.Marshal(subpro)
+	APIstub.PutState(args[0], subproAsBytes2)
+
+	return shim.Success(nil)
+}
+
+func (s *SmartContract) queryAppendix(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 4 {
+		return shim.Error("Incorrect number of arguments. Expecting 4")
+	}
+	var appendix = []Appendix{}
+	subproAsBytes1, _ := APIstub.GetState(args[0])
+	subpro := Subproject{}
+
+	json.Unmarshal(subproAsBytes1, &subpro)
+	appendix = subpro.Appendix
+
+	for i := 0; i < len(appendix); i++ {
+		if appendix[i].FileName == args[1] && appendix[i].UpUser == args[2] && appendix[i].UpTime == args[3] {
+			appendixAsBytes, _ := json.Marshal(appendix[i])
+			return shim.Success(appendixAsBytes)
+		}
+	}
+	return shim.Error("Not found the appendix")
+}
+
+func (s *SmartContract) queryAllAppendixForSub(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1")
+	}
+	var appendix = []Appendix{}
+	subproAsBytes1, _ := APIstub.GetState(args[0])
+	subpro := Subproject{}
+
+	json.Unmarshal(subproAsBytes1, &subpro)
+	appendix = subpro.Appendix
+
+	appendixAsBytes, _ := json.Marshal(appendix)
+	return shim.Success(appendixAsBytes)
+
+}
 
 func (s *SmartContract) getQueryResultForQueryString(stub shim.ChaincodeStubInterface, args []string) sc.Response {
 	resultsIterator, err := stub.GetQueryResult(args[0])

@@ -37,7 +37,7 @@
         methods: {
             test: function () {
 
-                axios.post('/queryHistoryOfSubproject', {
+                axios.post('/queryAllAppendixForSub', {
                     name: "CAR2",
                     password: "tea1",
                     stuNumber: "222",
@@ -46,22 +46,27 @@
                     proID: "123",
                     info: "测试用",
                     stuName: "member",
-                    subproID: "-193538175",
+                    score: "100",
+                    subproID: "228464692",
                     userName: "特约评论员",
                     userAvatar: "e",
                     content: "这是第二条评论",
                     time: "2012-2-2",
-                    subproTime: "2022-2-2"
+                    subproTime: "2022-2-2",
+                    endTime: "2012-2-2",
+                    difficulty: "1"
                 }).then(function (response) {
                     this.res = response.data.details;
                 }.bind(this));
             },
             submit: function () {
                 formData.append('file', document.querySelector('input[type=file]').files[0]) // 'file' 这个名字要和后台获取文件的名字一样;
-                formData.append('user', this.name)
+                formData.append('userName', this.name)
+                formData.append('description', "这是一条描述")
+                formData.append('subproID', "228464692")
                 //'userfile'是formData这个对象的键名
                 axios({
-                    url: '/uploadwork',   //****: 你的ip地址
+                    url: '/uploadAppendixForSub',   //****: 你的ip地址
                     data: formData,
                     method: 'post',
                     headers: {
@@ -73,7 +78,7 @@
                     console.log(res.data);
                 }) // 发送请求
             },
-            download:function () {
+            download: function () {
 
             }
         }

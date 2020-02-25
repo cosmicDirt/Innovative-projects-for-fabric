@@ -6,10 +6,10 @@ import org.hyperledger.fabric.sdk.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -22,7 +22,6 @@ public class SubprojectController {
     public Map<String, Object> createSubproject(@RequestBody Map<String, String> data) throws Exception {
         String status = "";
         String details = "";
-        String stringResponse = "";
 
         Map<String, Object> map = new HashMap<String, Object>();
 
@@ -31,8 +30,8 @@ public class SubprojectController {
             Random random = new Random();
             String subproID = String.valueOf(random.nextInt());
             String timeStamp = String.valueOf(System.currentTimeMillis());
-            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd :hh:mm:ss");
-            String time = df.format(new Date());
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+            String startTime = df.format(new Date());
 
             HFClient client = HFJavaExample.getClient();
             Channel channel = client.getChannel("mychannel");
@@ -41,12 +40,12 @@ public class SubprojectController {
 
             req.setChaincodeID(cid);
             req.setFcn("createSubproject");
-            req.setArgs(new String[]{subproID, data.get("proID"), time, data.get("info")});
+            req.setArgs(new String[]{subproID, data.get("proID"), startTime, data.get("endTime"), data.get("difficulty"), data.get("info")});
             Collection<ProposalResponse> res = channel.sendTransactionProposal(req);
             channel.sendTransaction(res);
             status = "right";
             map.put("subproID", subproID);
-            map.put("time", time);
+            map.put("startTime", startTime);
         } else {
             status = "wrong";
             details = "连接失败";
@@ -154,7 +153,7 @@ public class SubprojectController {
 
     @PostMapping("/addComment")
     @ResponseBody
-    public Map<String, Object> AddAComment(@RequestBody Map<String, String> data) throws Exception {
+    public Map<String, Object> addComment(@RequestBody Map<String, String> data) throws Exception {
         String status = "";
         String details = "";
         String stringResponse = "";
@@ -163,7 +162,7 @@ public class SubprojectController {
 
         if (data.containsKey("subproID")) {
 
-            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd :hh:mm:ss");
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
             String time = df.format(new Date());
 
             HFClient client = HFJavaExample.getClient();
@@ -172,8 +171,8 @@ public class SubprojectController {
             ChaincodeID cid = ChaincodeID.newBuilder().setName("fabcar").build();
 
             req.setChaincodeID(cid);
-            req.setFcn("AddAComment");
-            req.setArgs(new String[]{data.get("subproID"), data.get("userName"), data.get("userAvatar"), data.get("content"), time});
+            req.setFcn("addComment");
+            req.setArgs(new String[]{data.get("subproID"), data.get("userName"), data.get("userAvatar"), data.get("content"), time, data.get("score")});
             Collection<ProposalResponse> res = channel.sendTransactionProposal(req);
             channel.sendTransaction(res);
 
@@ -198,7 +197,6 @@ public class SubprojectController {
 
         if (data.containsKey("subproID")) {
             Gson gson = new Gson();
-            Random random = new Random();
 
             HFClient client = HFJavaExample.getClient();
             Channel channel = client.getChannel("mychannel");
@@ -214,6 +212,7 @@ public class SubprojectController {
             }
             List result = gson.fromJson(stringResponse, List.class);
             status = "right";
+            map.put("result", result);
         } else {
             status = "wrong";
             details = "连接失败";
@@ -249,7 +248,44 @@ public class SubprojectController {
                 stringResponse = new String(pres.getChaincodeActionResponsePayload());
             }
             status = "right";
-            map.put("result", stringResponse);
+            List result = gson.fromJson(stringResponse, List.class);
+            map.put("result", result);
+        } else {
+            status = "wrong";
+            details = "连接失败";
+        }
+        map.put("status", status);
+        map.put("details", details);
+        return map;
+    }
+
+    @PostMapping("/queryAllAppendixForSub")
+    @ResponseBody
+    public Map<String, Object> queryAllAppendixForSub(@RequestBody Map<String, String> data) throws Exception {
+        String status = "";
+        String details = "";
+        String stringResponse = "";
+
+        Map<String, Object> map = new HashMap<String, Object>();
+
+        if (data.containsKey("subproID")) {
+            Gson gson = new Gson();
+
+            HFClient client = HFJavaExample.getClient();
+            Channel channel = client.getChannel("mychannel");
+            QueryByChaincodeRequest req = client.newQueryProposalRequest();
+            ChaincodeID cid = ChaincodeID.newBuilder().setName("fabcar").build();
+
+            req.setChaincodeID(cid);
+            req.setFcn("queryAllAppendixForSub");
+            req.setArgs(new String[]{data.get("subproID")});
+            Collection<ProposalResponse> res = channel.queryByChaincode(req);
+            for (ProposalResponse pres : res) {
+                stringResponse = new String(pres.getChaincodeActionResponsePayload());
+            }
+            List result = gson.fromJson(stringResponse, List.class);
+            status = "right";
+            map.put("result", result);
         } else {
             status = "wrong";
             details = "连接失败";
@@ -260,7 +296,7 @@ public class SubprojectController {
     }
 
     //上传文件
-    @PostMapping("/uploadfile")
+    @PostMapping("/uploadAppendixForSub")
     public Map<String, Object> uploadFile(HttpServletRequest request, @RequestParam(value = "file", required = false) MultipartFile file) throws Exception {
 
         String status = "";
@@ -269,20 +305,22 @@ public class SubprojectController {
         Map<String, Object> map = new HashMap<String, Object>();
         request.setCharacterEncoding("UTF-8");
         String user = request.getParameter("userName");
-        String subproID=request.getParameter("subproID");
+        String description = request.getParameter("description");
+        String subproID = request.getParameter("subproID");
 
         if (!file.isEmpty()) {
             String fileName = file.getOriginalFilename();
             String path = null;
-            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd :hh:mm:ss");
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
             String time = df.format(new Date());
             String type = fileName.indexOf(".") != -1 ? fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length()) : null;
+            String stamp = String.valueOf(df.parse(time).getTime() / 1000);
 
             if (type != null) {
                 // 项目在容器中实际发布运行的根路径
                 String realPath = request.getSession().getServletContext().getRealPath("/");
                 // 自定义的文件名称
-                String trueFileName = fileName + "_" + user + "_" + time;
+                String trueFileName = user + "_" + stamp + "_" + fileName;
 
                 // 设置存放文件的路径
                 path = "E:\\tmpStore\\" + trueFileName;
@@ -299,13 +337,14 @@ public class SubprojectController {
                 ChaincodeID cid = ChaincodeID.newBuilder().setName("fabcar").build();
 
                 req.setChaincodeID(cid);
-                req.setFcn("addFileOfSubproject");
-                req.setArgs(new String[]{});
+                req.setFcn("uploadAppendixForSub");
+                req.setArgs(new String[]{subproID, fileName, path, description, user, time});
                 Collection<ProposalResponse> res = channel.sendTransactionProposal(req);
                 channel.sendTransaction(res);
 
                 status = "right";
-                map.put("fileName",trueFileName);
+                map.put("fileName", fileName);
+                map.put("upTime", time);
             } else {
                 status = "wrong";
                 details = "无法识别的文件类型";
@@ -319,12 +358,16 @@ public class SubprojectController {
         return map;
     }
 
-    @RequestMapping("/downloadFile")
-    public void downloadFile(HttpServletRequest request, HttpServletResponse response) {
+    @RequestMapping("/downloadAppendixForSub")
+    public void downloadFile(HttpServletRequest request, HttpServletResponse response) throws ParseException {
         String downloadFilePath = "E:\\tmpStore\\";//被下载的文件在服务器中的路径,
         String fileName = request.getParameter("fileName");//被下载文件的名称
+        String upUser = request.getParameter("upUser");
+        String upTime = request.getParameter("upTime");
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        String stamp = String.valueOf(df.parse(upTime).getTime() / 1000);
 
-        File file = new File(downloadFilePath + fileName);
+        File file = new File(downloadFilePath + upUser + "_" + stamp + "_" + fileName);
         if (file.exists()) {
             response.setContentType("application/force-download");// 设置强制下载不打开            
             response.addHeader("Content-Disposition", "attachment;fileName=" + fileName);
