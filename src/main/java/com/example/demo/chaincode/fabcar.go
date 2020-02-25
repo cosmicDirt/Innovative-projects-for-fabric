@@ -94,6 +94,22 @@ type Subproject struct {
 	Appendix        []Appendix `json:"appendix"`
 }
 
+type Project struct{
+	ProjectID string `json:"project_id"`
+	ProInfo string `json:"pro_info"`
+	ProStartTime string `json:"pro_start_time"`
+	ProEndTime string `json:"pro_end_time"`
+	ProLeaderName string `json:"pro_leader_name"`
+	ProTeacherName string `json:"pro_teacher_name"`
+}
+
+type StuInPro struct{
+	SipID string `json:"sip_id"`
+	SipProID string `json:"sip_pro_id"`
+	SipStuName string `json:"sip_stu_name"`
+	RelativeScore string `json:"relative_score"`
+	FinalScore string `json:"final_score"`
+}
 /*
  * The Init method is called when the Smart Contract "fabcar" is instantiated by the blockchain network
  * Best practice is to have any Ledger initialization in separate function -- see initLedger()
@@ -131,6 +147,14 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 		return s.createSubproject(APIstub, args)
 	} else if function == "deleteSubproject" {
 		return s.deleteSubproject(APIstub, args)
+	} else if function=="createProject"{
+		return s.createProject(APIstub,args)
+	} else if function=="deleteProject"{
+		return s.deleteProject(APIstub,args)
+	} else if function=="quitProject"{
+		return s.quitProject(APIstub,args)
+	} else if function=="AddProMem"{
+		return s.AddProMem(APIstub,args)
 	} else if function == "joinSubproject" {
 		return s.joinSubproject(APIstub, args)
 	} else if function == "quitSubproject" {
@@ -377,6 +401,54 @@ func (s *SmartContract) addComment(APIstub shim.ChaincodeStubInterface, args []s
 	APIstub.PutState(args[0], subproAsBytes2)
 
 	return shim.Success(nil)
+}
+
+
+func (s *SmartContract) createProject(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	var pro Project
+	if len(args) != 7 {
+		return shim.Error("Incorrect number of arguments. Expecting 4+")
+	} else {
+		pro = Project{ProjectID: args[1],ProInfo: args[2],ProLeaderName:args[3],ProTeacherName:args[4],ProStartTime:args[5],ProEndTime:args[6]}
+		proAsBytes, _ := json.Marshal(pro)
+		APIstub.PutState(args[0], proAsBytes)
+
+		return shim.Success(nil)
+	}
+}
+
+func (s *SmartContract) deleteProject(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1")
+	}
+	APIstub.DelState(args[0])
+	return shim.Success(nil)
+}
+
+func (s *SmartContract) quitProject(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 2 {
+		return shim.Error("Incorrect number of arguments. Expecting 2")
+	}
+
+	APIstub.DelState(args[0])
+	return shim.Success(nil)
+}
+
+func (s *SmartContract) AddProMem(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	var sip StuInPro
+	if len(args) != 4 {
+		return shim.Error("Incorrect number of arguments. Expecting 5")
+	}else {
+		sip = StuInPro{SipID:args[1],SipProID: args[2],SipStuName: args[3],FinalScore:0,RelativeScore:0}
+		sipAsBytes, _ := json.Marshal(sip)
+		APIstub.PutState(args[0], sipAsBytes)
+
+		return shim.Success(nil)
+	}
 }
 
 func (s *SmartContract) uploadAppendixForSub(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {

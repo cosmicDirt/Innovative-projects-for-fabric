@@ -1,7 +1,6 @@
 package com.example.demo.controller;
 
 import com.example.demo.HFJavaExample;
-import com.example.demo.entity.StudentEntity;
 import com.google.gson.Gson;
 import org.hyperledger.fabric.sdk.*;
 import org.springframework.web.bind.annotation.*;
