@@ -195,7 +195,7 @@ public class ProjectController {
 
             req.setChaincodeID(cid);
             req.setFcn("AddProMem");
-            req.setArgs(new String[] { SipID,SipID,data.get("proID"),data.get("userName") });
+            req.setArgs(new String[] { SipID,SipID,data.get("proID"),data.get("userName"),"0","0" });
             Collection<ProposalResponse> res = channel.sendTransactionProposal(req);
             channel.sendTransaction(res);
 

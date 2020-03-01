@@ -440,10 +440,10 @@ func (s *SmartContract) quitProject(APIstub shim.ChaincodeStubInterface, args []
 func (s *SmartContract) AddProMem(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	var sip StuInPro
-	if len(args) != 4 {
+	if len(args) != 6 {
 		return shim.Error("Incorrect number of arguments. Expecting 5")
 	}else {
-		sip = StuInPro{SipID:args[1],SipProID: args[2],SipStuName: args[3],FinalScore:0,RelativeScore:0}
+		sip = StuInPro{SipID:args[1],SipProID: args[2],SipStuName: args[3],FinalScore:args[4],RelativeScore:args[5]}
 		sipAsBytes, _ := json.Marshal(sip)
 		APIstub.PutState(args[0], sipAsBytes)
 
