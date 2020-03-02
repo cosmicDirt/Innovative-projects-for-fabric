@@ -65,4 +65,43 @@ public class LoginController {
         return map;
 
     }
+
+    @PostMapping("/fixstuinfo")
+    @ResponseBody
+    public Map<String, Object> fixstuinfo(@RequestBody Map<String, String> data) throws Exception {
+        Map<String, Object> map = new HashMap<>();
+        String status = "";
+        String details = "";
+        String stringResponse = "";
+
+        if (data.containsKey("stuName")) {
+            Gson gson = new Gson();
+
+            HFClient client = HFJavaExample.getClient();
+            Channel channel = client.getChannel("mychannel");
+            TransactionProposalRequest req = client.newTransactionProposalRequest();
+            ChaincodeID cid = ChaincodeID.newBuilder().setName("fabcar").build();
+
+            req.setChaincodeID(cid);
+            req.setFcn("deleteStudentByName");
+            req.setArgs(new String[]{data.get("stuName")});
+            Collection<ProposalResponse> res = channel.sendTransactionProposal(req);
+            channel.sendTransaction(res);
+
+            TransactionProposalRequest req1 = client.newTransactionProposalRequest();
+            req1.setChaincodeID(cid);
+            req1.setFcn("fixStuInfo");
+            req1.setArgs(new String[]{data.get("name"), data.get("stuNumber"), data.get("gender"), data.get("uni"),data.get("major"),data.get("phone"),data.get("email")});
+            Collection<ProposalResponse> res2 = channel.sendTransactionProposal(req1);
+            channel.sendTransaction(res2);
+
+            status = "right";
+        } else {
+            status = "wrong";
+            details = "连接失败";
+        }
+        map.put("status", status);
+        map.put("details", details);
+        return map;
+    }
 }

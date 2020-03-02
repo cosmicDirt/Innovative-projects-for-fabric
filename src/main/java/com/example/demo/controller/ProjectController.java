@@ -8,10 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 @RestController
 public class ProjectController {
@@ -115,20 +112,10 @@ public class ProjectController {
             for (ProposalResponse pres : res) {
                 stringResponse = new String(pres.getChaincodeActionResponsePayload());
             }
-            Map<String, String> result = gson.fromJson(stringResponse, Map.class);
+            List result = gson.fromJson(stringResponse, List.class);
 
-            if (result.isEmpty()) {
-                status = "wrong";
-                details = "用户不存在";
-            }
-            else {
-                map.put("stuNumber", result.get("stuName"));
-                map.put("gender", result.get("gender"));
-                map.put("email", result.get("email"));
-                map.put("phone", "phone");
-                status = "right";
-            }
-            status="right";
+            status = "right";
+            map.put("result", result);
         }
         else
         {
@@ -238,20 +225,10 @@ public class ProjectController {
             for (ProposalResponse pres : res) {
                 stringResponse = new String(pres.getChaincodeActionResponsePayload());
             }
-            Map<String, String> result = gson.fromJson(stringResponse, Map.class);
+            List result = gson.fromJson(stringResponse, List.class);
 
-            if (result.isEmpty()) {
-                status = "wrong";
-                details = "用户不存在";
-            }
-            else {
-                map.put("stuNumber", result.get("stuName"));
-                map.put("gender", result.get("gender"));
-                map.put("email", result.get("email"));
-                map.put("phone", "phone");
-                status = "right";
-            }
-            status="right";
+            status = "right";
+            map.put("result", result);
         }
         else
         {
@@ -288,8 +265,10 @@ public class ProjectController {
             for (ProposalResponse pres : res) {
                 stringResponse = new String(pres.getChaincodeActionResponsePayload());
             }
+            List result = gson.fromJson(stringResponse, List.class);
+
             status = "right";
-            map.put("result", stringResponse);
+            map.put("result", result);
         } else {
             status = "wrong";
             details = "连接失败";

@@ -167,6 +167,10 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 		return s.queryAppendix(APIstub, args)
 	} else if function == "queryAllAppendixForSub" {
 		return s.queryAllAppendixForSub(APIstub, args)
+	} else if function=="deleteStu"{
+		return s.deleteStu(APIstub,args)
+	} else if function=="fixStuInfo"{
+		return s.fixStu(APIstub,args)
 	}
 
 	return shim.Error("Invalid Smart Contract function name.")
@@ -540,6 +544,31 @@ func (s *SmartContract) getQueryResultForQueryString(stub shim.ChaincodeStubInte
 	buffer.WriteString("]")
 	fmt.Printf("- getQueryResultForQueryString queryResult:\n%s\n", buffer.String())
 	return shim.Success(buffer.Bytes())
+}
+
+func (s *SmartContract) deleteStu(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1")
+	}
+
+	APIstub.DelState(args[0])
+
+	return shim.Success(nil)
+}
+
+func (s *SmartContract) fixStu(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 8 {
+		return shim.Error("Incorrect number of arguments. Expecting 6")
+	}
+
+	var stu = Student{Name: args[0], StuNumber: args[1], Password: args[2], Gender: args[3], University: args[4], Major: args[5],Phone:args[6],Email:args[7]}
+
+	stuAsBytes, _ := json.Marshal(stu)
+	APIstub.PutState(args[0], stuAsBytes)
+
+	return shim.Success(nil)
 }
 
 func main() {
