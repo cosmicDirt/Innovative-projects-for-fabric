@@ -7,7 +7,7 @@
 </head>
 <body>
 <div id="test">
-    <el-button type="primary" @click="test">测试</el-button>
+    <el-button type="primary" @click="test">我的测试</el-button>
     <el-button type="primary" @click="download">测试</el-button>
     <div class="tip">选择文件：</div>
     <input class="file" type="file" title="请选择文件" value="请选择文件">
@@ -37,24 +37,8 @@
         methods: {
             test: function () {
 
-                axios.post('/queryAllAppendixForSub', {
-                    name: "CAR2",
-                    password: "tea1",
-                    stuNumber: "222",
-                    teaNumber: "111",
-                    identity: "student",
+                axios.post('/finishPro', {
                     proID: "123",
-                    info: "测试用",
-                    stuName: "member",
-                    score: "100",
-                    subproID: "228464692",
-                    userName: "特约评论员",
-                    userAvatar: "e",
-                    content: "这是第二条评论",
-                    time: "2012-2-2",
-                    subproTime: "2022-2-2",
-                    endTime: "2012-2-2",
-                    difficulty: "1"
                 }).then(function (response) {
                     this.res = response.data.details;
                 }.bind(this));
