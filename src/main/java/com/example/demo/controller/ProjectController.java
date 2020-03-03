@@ -95,20 +95,19 @@ public class ProjectController {
 
         Map<String, Object> map = new HashMap<String, Object>();
 
-        if(data.containsKey("stuName")) {
+        if(data.containsKey("userName")) {
 
             Gson gson=new Gson();
 
             HFClient client= HFJavaExample.getClient();
             Channel channel = client.getChannel("mychannel");
-            TransactionProposalRequest req = client.newTransactionProposalRequest();
+            QueryByChaincodeRequest req = client.newQueryProposalRequest();
             ChaincodeID cid = ChaincodeID.newBuilder().setName("fabcar").build();
 
             req.setChaincodeID(cid);
             req.setFcn("queryStudentByName");
-            req.setArgs(new String[] { data.get("stuName") });
-            Collection<ProposalResponse> res = channel.sendTransactionProposal(req);
-            channel.sendTransaction(res);
+            req.setArgs(new String[] { data.get("userName") });
+            Collection<ProposalResponse> res = channel.queryByChaincode(req);
             for (ProposalResponse pres : res) {
                 stringResponse = new String(pres.getChaincodeActionResponsePayload());
             }
@@ -214,14 +213,13 @@ public class ProjectController {
 
             HFClient client= HFJavaExample.getClient();
             Channel channel = client.getChannel("mychannel");
-            TransactionProposalRequest req = client.newTransactionProposalRequest();
+            QueryByChaincodeRequest req = client.newQueryProposalRequest();
             ChaincodeID cid = ChaincodeID.newBuilder().setName("fabcar").build();
 
             req.setChaincodeID(cid);
             req.setFcn("queryStudentByName");
             req.setArgs(new String[] { data.get("ProID") });
-            Collection<ProposalResponse> res = channel.sendTransactionProposal(req);
-            channel.sendTransaction(res);
+            Collection<ProposalResponse> res = channel.queryByChaincode(req);
             for (ProposalResponse pres : res) {
                 stringResponse = new String(pres.getChaincodeActionResponsePayload());
             }

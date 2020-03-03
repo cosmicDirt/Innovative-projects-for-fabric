@@ -546,24 +546,13 @@ func (s *SmartContract) getQueryResultForQueryString(stub shim.ChaincodeStubInte
 	return shim.Success(buffer.Bytes())
 }
 
-func (s *SmartContract) deleteStu(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
-
-	if len(args) != 1 {
-		return shim.Error("Incorrect number of arguments. Expecting 1")
-	}
-
-	APIstub.DelState(args[0])
-
-	return shim.Success(nil)
-}
-
 func (s *SmartContract) fixStu(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-	if len(args) != 8 {
+	if len(args) != 9 {
 		return shim.Error("Incorrect number of arguments. Expecting 6")
 	}
 
-	var stu = Student{Name: args[0], StuNumber: args[1], Password: args[2], Gender: args[3], University: args[4], Major: args[5],Phone:args[6],Email:args[7]}
+	var stu = Student{Name: args[1], StuNumber: args[2], Password: args[3], Gender: args[4], University: args[5], Major: args[6],Phone:args[7],Email:args[8]}
 
 	stuAsBytes, _ := json.Marshal(stu)
 	APIstub.PutState(args[0], stuAsBytes)

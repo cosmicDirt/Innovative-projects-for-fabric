@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -74,27 +75,41 @@ public class LoginController {
         String details = "";
         String stringResponse = "";
 
-        if (data.containsKey("stuName")) {
+        if (data.containsKey("userName")) {
             Gson gson = new Gson();
 
             HFClient client = HFJavaExample.getClient();
             Channel channel = client.getChannel("mychannel");
-            TransactionProposalRequest req = client.newTransactionProposalRequest();
+            QueryByChaincodeRequest req = client.newQueryProposalRequest();
             ChaincodeID cid = ChaincodeID.newBuilder().setName("fabcar").build();
 
             req.setChaincodeID(cid);
-            req.setFcn("deleteStudentByName");
-            req.setArgs(new String[]{data.get("stuName")});
-            Collection<ProposalResponse> res = channel.sendTransactionProposal(req);
-            channel.sendTransaction(res);
+            req.setFcn("queryStudentByName");
+            req.setArgs(new String[] { data.get("userName") });
+            Collection<ProposalResponse> res = channel.queryByChaincode(req);
+            for (ProposalResponse pres : res) {
+                stringResponse = new String(pres.getChaincodeActionResponsePayload());
+            }
+            Map<String,String> result = gson.fromJson(stringResponse, Map.class);
 
             TransactionProposalRequest req1 = client.newTransactionProposalRequest();
             req1.setChaincodeID(cid);
             req1.setFcn("fixStuInfo");
-            req1.setArgs(new String[]{data.get("name"), data.get("stuNumber"), data.get("gender"), data.get("uni"),data.get("major"),data.get("phone"),data.get("email")});
+            req1.setArgs(new String[]{data.get("userName"),data.get("userName"), result.get("stuNumber"),result.get("password"),data.get("gender"), data.get("uni"),data.get("major"),data.get("phone"),data.get("email")});
             Collection<ProposalResponse> res2 = channel.sendTransactionProposal(req1);
             channel.sendTransaction(res2);
 
+            QueryByChaincodeRequest req3 = client.newQueryProposalRequest();
+            req3.setChaincodeID(cid);
+            req3.setFcn("queryStudentByName");
+            req3.setArgs(new String[] { data.get("userName") });
+            Collection<ProposalResponse> res3 = channel.queryByChaincode(req3);
+            for (ProposalResponse pres : res3) {
+                stringResponse = new String(pres.getChaincodeActionResponsePayload());
+            }
+            List result2 = gson.fromJson(stringResponse, List.class);
+
+            map.put("result", result2);
             status = "right";
         } else {
             status = "wrong";
