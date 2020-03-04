@@ -37,7 +37,7 @@
         methods: {
             test: function () {
 
-                axios.post('/queryAllAppendixForSub', {
+                axios.post('/addComment', {
                     name: "CAR2",
                     password: "tea1",
                     stuNumber: "222",
@@ -45,16 +45,16 @@
                     identity: "student",
                     proID: "123",
                     info: "测试用",
-                    stuName: "member",
-                    score: "100",
-                    subproID: "228464692",
-                    userName: "特约评论员",
+                    stuName: "tony",
+                    score: "5",
+                    subproID: "-666781044",
+                    userName: "peter",
                     userAvatar: "e",
-                    content: "这是第二条评论",
-                    time: "2012-2-2",
-                    subproTime: "2022-2-2",
-                    endTime: "2012-2-2",
-                    difficulty: "1"
+                    content: "非常棒非常棒非常棒非常棒非常棒非常棒非常棒非常棒顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶",
+                    time: "2012-02-02",
+                    subproTime: "2022-02-02 17:07:22",
+                    endTime: "2020-04-04 17:07:22",
+                    difficulty: "简单"
                 }).then(function (response) {
                     this.res = response.data.details;
                 }.bind(this));
@@ -63,7 +63,7 @@
                 formData.append('file', document.querySelector('input[type=file]').files[0]) // 'file' 这个名字要和后台获取文件的名字一样;
                 formData.append('userName', this.name)
                 formData.append('description', "这是一条描述")
-                formData.append('subproID', "228464692")
+                formData.append('subproID', "2101103092")
                 //'userfile'是formData这个对象的键名
                 axios({
                     url: '/uploadAppendixForSub',   //****: 你的ip地址
