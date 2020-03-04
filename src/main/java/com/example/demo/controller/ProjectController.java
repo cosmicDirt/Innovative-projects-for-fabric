@@ -112,7 +112,7 @@ public class ProjectController {
             for (ProposalResponse pres : res) {
                 stringResponse = new String(pres.getChaincodeActionResponsePayload());
             }
-            List result = gson.fromJson(stringResponse, List.class);
+            Map<String,String> result = gson.fromJson(stringResponse, Map.class);
 
             status = "right";
             map.put("result", result);
@@ -182,7 +182,7 @@ public class ProjectController {
 
             req.setChaincodeID(cid);
             req.setFcn("AddProMem");
-            req.setArgs(new String[] { SipID,SipID,data.get("proID"),data.get("userName"),"0","0" });
+            req.setArgs(new String[] { SipID,SipID,data.get("proID"),data.get("stuName"),"0","0" });
             Collection<ProposalResponse> res = channel.sendTransactionProposal(req);
             channel.sendTransaction(res);
 
@@ -224,7 +224,7 @@ public class ProjectController {
             for (ProposalResponse pres : res) {
                 stringResponse = new String(pres.getChaincodeActionResponsePayload());
             }
-            List result = gson.fromJson(stringResponse, List.class);
+            Map<String,Object> result = gson.fromJson(stringResponse, Map.class);
 
             status = "right";
             map.put("result", result);
@@ -332,7 +332,7 @@ public class ProjectController {
 
             req2.setChaincodeID(cid);
             req2.setFcn("getQueryResultForQueryString");
-            req.setArgs(new String[]{query});
+            req2.setArgs(new String[]{query2});
             Collection<ProposalResponse> res2 = channel.queryByChaincode(req2);
             for (ProposalResponse pres : res2) {
                 stringResponse = new String(pres.getChaincodeActionResponsePayload());
