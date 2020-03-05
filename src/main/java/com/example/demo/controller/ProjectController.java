@@ -277,6 +277,44 @@ public class ProjectController {
         return map;
     }
 
+    @PostMapping("/sesrchSIPByproID")
+    @ResponseBody
+    public Map<String,Object> sesrchSIPByproID(@RequestBody Map<String, String> data) throws Exception {
+        String status="";
+        String details="";
+        String stringResponse="";
+
+        Map<String, Object> map = new HashMap<String, Object>();
+
+        if(data.containsKey("proID")) {
+            Gson gson = new Gson();
+            String query = "{\"selector\":{\"sip_pro_id\":\"" + data.get("proID") + "\"}}";
+
+            HFClient client = HFJavaExample.getClient();
+            Channel channel = client.getChannel("mychannel");
+            QueryByChaincodeRequest req = client.newQueryProposalRequest();
+            ChaincodeID cid = ChaincodeID.newBuilder().setName("fabcar").build();
+
+            req.setChaincodeID(cid);
+            req.setFcn("getQueryResultForQueryString");
+            req.setArgs(new String[]{query});
+            Collection<ProposalResponse> res = channel.queryByChaincode(req);
+            for (ProposalResponse pres : res) {
+                stringResponse = new String(pres.getChaincodeActionResponsePayload());
+            }
+            List result = gson.fromJson(stringResponse, List.class);
+
+            status = "right";
+            map.put("result", result);
+        } else {
+            status = "wrong";
+            details = "连接失败";
+        }
+        map.put("status", status);
+        map.put("details", details);
+        return map;
+    }
+
     @PostMapping("/finishPro")
     @ResponseBody
     public Map<String,Object> finishPro(@RequestBody Map<String, String> data) throws Exception {
