@@ -36,7 +36,7 @@ public class ProjectController {
             req.setChaincodeID(cid);
             req.setFcn("createProject");
             req.setArgs(new String[] { ProID,ProID,data.get("info"),data.get("leaderName"),data.get("teacherName"),
-                    data.get("startTime"),data.get("endTime")});
+                    data.get("startTime"),data.get("endTime"),data.get("proName")});
             Collection<ProposalResponse> res = channel.sendTransactionProposal(req);
             channel.sendTransaction(res);
             status="right";
@@ -314,7 +314,7 @@ public class ProjectController {
                     if(comments.get(j).get("score")!=null)
                         score+=Float.parseFloat(comments.get(j).get("score"));
                 }
-                score=(score/comments.size())/Float.parseFloat((String) result.get(i).get("Record").get("difficulty"));
+                score=(score/comments.size())*Float.parseFloat((String) result.get(i).get("Record").get("difficulty"));
                 for(int j=0;j<members.size();j++){
                     String stu=members.get(j);
                     if(stuScore.get(stu)!=null){

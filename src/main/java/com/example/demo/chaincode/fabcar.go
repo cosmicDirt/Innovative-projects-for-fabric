@@ -96,6 +96,7 @@ type Subproject struct {
 
 type Project struct{
 	ProjectID string `json:"project_id"`
+	ProjectName string `json:"project_name"`
 	ProInfo string `json:"pro_info"`
 	ProStartTime string `json:"pro_start_time"`
 	ProEndTime string `json:"pro_end_time"`
@@ -411,10 +412,10 @@ func (s *SmartContract) addComment(APIstub shim.ChaincodeStubInterface, args []s
 func (s *SmartContract) createProject(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	var pro Project
-	if len(args) != 7 {
+	if len(args) != 8 {
 		return shim.Error("Incorrect number of arguments. Expecting 4+")
 	} else {
-		pro = Project{ProjectID: args[1],ProInfo: args[2],ProLeaderName:args[3],ProTeacherName:args[4],ProStartTime:args[5],ProEndTime:args[6]}
+		pro = Project{ProjectID: args[1],ProInfo: args[2],ProLeaderName:args[3],ProTeacherName:args[4],ProStartTime:args[5],ProEndTime:args[6],ProjectName:args[7]}
 		proAsBytes, _ := json.Marshal(pro)
 		APIstub.PutState(args[0], proAsBytes)
 
