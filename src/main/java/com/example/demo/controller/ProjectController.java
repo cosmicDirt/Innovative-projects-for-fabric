@@ -34,7 +34,7 @@ public class ProjectController {
             req.setChaincodeID(cid);
             req.setFcn("createProject");
             req.setArgs(new String[] { ProID,ProID,data.get("info"),data.get("leaderName"),data.get("teacherName"),
-                    data.get("startTime"),data.get("endTime")});
+                    data.get("startTime"),data.get("endTime"),data.get("proName")});
             Collection<ProposalResponse> res = channel.sendTransactionProposal(req);
             channel.sendTransaction(res);
             status="right";
@@ -275,6 +275,44 @@ public class ProjectController {
         return map;
     }
 
+    @PostMapping("/sesrchSIPByproID")
+    @ResponseBody
+    public Map<String,Object> sesrchSIPByproID(@RequestBody Map<String, String> data) throws Exception {
+        String status="";
+        String details="";
+        String stringResponse="";
+
+        Map<String, Object> map = new HashMap<String, Object>();
+
+        if(data.containsKey("proID")) {
+            Gson gson = new Gson();
+            String query = "{\"selector\":{\"sip_pro_id\":\"" + data.get("proID") + "\"}}";
+
+            HFClient client = HFJavaExample.getClient();
+            Channel channel = client.getChannel("mychannel");
+            QueryByChaincodeRequest req = client.newQueryProposalRequest();
+            ChaincodeID cid = ChaincodeID.newBuilder().setName("fabcar").build();
+
+            req.setChaincodeID(cid);
+            req.setFcn("getQueryResultForQueryString");
+            req.setArgs(new String[]{query});
+            Collection<ProposalResponse> res = channel.queryByChaincode(req);
+            for (ProposalResponse pres : res) {
+                stringResponse = new String(pres.getChaincodeActionResponsePayload());
+            }
+            List result = gson.fromJson(stringResponse, List.class);
+
+            status = "right";
+            map.put("result", result);
+        } else {
+            status = "wrong";
+            details = "连接失败";
+        }
+        map.put("status", status);
+        map.put("details", details);
+        return map;
+    }
+
     @PostMapping("/finishPro")
     @ResponseBody
     public Map<String,Object> finishPro(@RequestBody Map<String, String> data) throws Exception {
@@ -312,7 +350,7 @@ public class ProjectController {
                     if(comments.get(j).get("score")!=null)
                         score+=Float.parseFloat(comments.get(j).get("score"));
                 }
-                score=(score/comments.size())/Float.parseFloat((String) result.get(i).get("Record").get("difficulty"));
+                score=(score/comments.size())*Float.parseFloat((String) result.get(i).get("Record").get("difficulty"));
                 for(int j=0;j<members.size();j++){
                     String stu=members.get(j);
                     if(stuScore.get(stu)!=null){
