@@ -3,16 +3,14 @@ package com.example.demo.controller;
 import com.example.demo.HFJavaExample;
 import com.google.gson.Gson;
 import org.hyperledger.fabric.sdk.*;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@CrossOrigin
 @RestController
 public class LoginController {
 

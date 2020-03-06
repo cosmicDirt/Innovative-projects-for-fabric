@@ -4,13 +4,11 @@ import com.example.demo.HFJavaExample;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import org.hyperledger.fabric.sdk.*;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
+@CrossOrigin
 @RestController
 public class ProjectController {
 
