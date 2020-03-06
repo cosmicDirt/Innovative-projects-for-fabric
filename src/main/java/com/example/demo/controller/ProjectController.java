@@ -264,10 +264,26 @@ public class ProjectController {
             for (ProposalResponse pres : res) {
                 stringResponse = new String(pres.getChaincodeActionResponsePayload());
             }
-            List result = gson.fromJson(stringResponse, List.class);
+            List<LinkedTreeMap<String, LinkedTreeMap<String, Object>>> result = gson.fromJson(stringResponse, List.class);
 
             status = "right";
-            map.put("result", result);
+            map.put("Sip", result);
+
+            List<Map<String, Object>> resultinfo = new ArrayList<>();
+            for(int i=0; i<result.size();i++) {
+                QueryByChaincodeRequest req2 = client.newQueryProposalRequest();
+
+                req2.setChaincodeID(cid);
+                req2.setFcn("queryStudentByName");
+                req2.setArgs(new String[]{(String) result.get(i).get("Record").get("sip_pro_id")});
+                Collection<ProposalResponse> res2 = channel.queryByChaincode(req2);
+                for (ProposalResponse pres : res2) {
+                    stringResponse = new String(pres.getChaincodeActionResponsePayload());
+                }
+                Map<String, Object> result2 = gson.fromJson(stringResponse, Map.class);
+                resultinfo.add(result2);
+            }
+            map.put("proInfo", resultinfo);
         } else {
             status = "wrong";
             details = "连接失败";
@@ -394,8 +410,18 @@ public class ProjectController {
                 }
             }
 
+            QueryByChaincodeRequest req4 = client.newQueryProposalRequest();
+            String query4 = "{\"selector\":{\"sip_pro_id\":\"" + data.get("proID") + "\"}}";
+            req4.setChaincodeID(cid);
+            req4.setFcn("getQueryResultForQueryString");
+            req4.setArgs(new String[]{query4});
+            Collection<ProposalResponse> res4 = channel.queryByChaincode(req4);
+            for (ProposalResponse pres : res4) {
+                stringResponse = new String(pres.getChaincodeActionResponsePayload());
+            }
+            List<LinkedTreeMap<String, LinkedTreeMap<String, Object>>> result4 = gson.fromJson(stringResponse, List.class);
+            map.put("result",result4);
             status = "right";
-            map.put("result", result);
         } else {
             status = "wrong";
             details = "连接失败";

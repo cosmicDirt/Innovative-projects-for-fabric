@@ -37,8 +37,8 @@
         methods: {
             test: function () {
 
-                axios.post('/searchStu', {
-                    userName:"4"
+                axios.post('/sesrchSIPByStu', {
+                    stuName:"2"
                 }).then(function (response) {
                     this.res = response.data.details;
                 }.bind(this));
