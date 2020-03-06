@@ -84,6 +84,7 @@ type Appendix struct {
 
 type Subproject struct {
 	SubproID        string     `json:"subproID"`
+	SubproName      string     `json:"subproName"`
 	ProID           string     `json:"proID"`
 	SubproStartTime string     `json:"subproStartTime"`
 	SubproEndTime   string     `json:"subproEndTime"`
@@ -94,22 +95,23 @@ type Subproject struct {
 	Appendix        []Appendix `json:"appendix"`
 }
 
-type Project struct{
-	ProjectID string `json:"project_id"`
-	ProInfo string `json:"pro_info"`
-	ProStartTime string `json:"pro_start_time"`
-	ProEndTime string `json:"pro_end_time"`
-	ProLeaderName string `json:"pro_leader_name"`
+type Project struct {
+	ProjectID      string `json:"project_id"`
+	ProInfo        string `json:"pro_info"`
+	ProStartTime   string `json:"pro_start_time"`
+	ProEndTime     string `json:"pro_end_time"`
+	ProLeaderName  string `json:"pro_leader_name"`
 	ProTeacherName string `json:"pro_teacher_name"`
 }
 
-type StuInPro struct{
-	SipID string `json:"sip_id"`
-	SipProID string `json:"sip_pro_id"`
-	SipStuName string `json:"sip_stu_name"`
+type StuInPro struct {
+	SipID         string `json:"sip_id"`
+	SipProID      string `json:"sip_pro_id"`
+	SipStuName    string `json:"sip_stu_name"`
 	RelativeScore string `json:"relative_score"`
-	FinalScore string `json:"final_score"`
+	FinalScore    string `json:"final_score"`
 }
+
 /*
  * The Init method is called when the Smart Contract "fabcar" is instantiated by the blockchain network
  * Best practice is to have any Ledger initialization in separate function -- see initLedger()
@@ -147,14 +149,14 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 		return s.createSubproject(APIstub, args)
 	} else if function == "deleteSubproject" {
 		return s.deleteSubproject(APIstub, args)
-	} else if function=="createProject"{
-		return s.createProject(APIstub,args)
-	} else if function=="deleteProject"{
-		return s.deleteProject(APIstub,args)
-	} else if function=="quitProject"{
-		return s.quitProject(APIstub,args)
-	} else if function=="AddProMem"{
-		return s.AddProMem(APIstub,args)
+	} else if function == "createProject" {
+		return s.createProject(APIstub, args)
+	} else if function == "deleteProject" {
+		return s.deleteProject(APIstub, args)
+	} else if function == "quitProject" {
+		return s.quitProject(APIstub, args)
+	} else if function == "AddProMem" {
+		return s.AddProMem(APIstub, args)
 	} else if function == "joinSubproject" {
 		return s.joinSubproject(APIstub, args)
 	} else if function == "quitSubproject" {
@@ -167,6 +169,10 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 		return s.queryAppendix(APIstub, args)
 	} else if function == "queryAllAppendixForSub" {
 		return s.queryAllAppendixForSub(APIstub, args)
+	} else if function == "deleteStu" {
+		return s.deleteStu(APIstub, args)
+	} else if function == "fixStuInfo" {
+		return s.fixStu(APIstub, args)
 	}
 
 	return shim.Error("Invalid Smart Contract function name.")
@@ -312,16 +318,16 @@ func (s *SmartContract) createTeacher(APIstub shim.ChaincodeStubInterface, args 
 func (s *SmartContract) createSubproject(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	var subpro Subproject
-	if len(args) < 6 {
+	if len(args) < 7 {
 		return shim.Error("Incorrect number of arguments. Expecting 6+")
-	} else if len(args) == 6 {
-		subpro = Subproject{SubproID: args[0], ProID: args[1], SubproStartTime: args[2], SubproEndTime: args[3], Difficulty: args[4], Info: args[5]}
+	} else if len(args) == 7 {
+		subpro = Subproject{SubproID: args[0], ProID: args[1], SubproStartTime: args[2], SubproEndTime: args[3], Difficulty: args[4], Info: args[5],SubproName:args[6]}
 	} else {
 		var str []string
-		for i := 6; i < len(args); i++ {
+		for i := 7; i < len(args); i++ {
 			str = append(str, args[i])
 		}
-		subpro = Subproject{SubproID: args[0], ProID: args[1], SubproStartTime: args[2], SubproEndTime: args[3], Difficulty: args[4], Info: args[5], Member: str}
+		subpro = Subproject{SubproID: args[0], ProID: args[1], SubproStartTime: args[2], SubproEndTime: args[3], Difficulty: args[4], Info: args[5], SubproName:args[6],Member: str}
 	}
 	subproAsBytes, _ := json.Marshal(subpro)
 	APIstub.PutState(args[0], subproAsBytes)
@@ -390,7 +396,7 @@ func (s *SmartContract) addComment(APIstub shim.ChaincodeStubInterface, args []s
 	if len(args) != 6 {
 		return shim.Error("Incorrect number of arguments. Expecting 6")
 	}
-	var comment = Comment{UserName: args[1], UserAvatar: args[2], Content: args[3], Time: args[4],Score:args[5]}
+	var comment = Comment{UserName: args[1], UserAvatar: args[2], Content: args[3], Time: args[4], Score: args[5]}
 	subproAsBytes1, _ := APIstub.GetState(args[0])
 	subpro := Subproject{}
 
@@ -403,14 +409,13 @@ func (s *SmartContract) addComment(APIstub shim.ChaincodeStubInterface, args []s
 	return shim.Success(nil)
 }
 
-
 func (s *SmartContract) createProject(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	var pro Project
 	if len(args) != 7 {
 		return shim.Error("Incorrect number of arguments. Expecting 4+")
 	} else {
-		pro = Project{ProjectID: args[1],ProInfo: args[2],ProLeaderName:args[3],ProTeacherName:args[4],ProStartTime:args[5],ProEndTime:args[6]}
+		pro = Project{ProjectID: args[1], ProInfo: args[2], ProLeaderName: args[3], ProTeacherName: args[4], ProStartTime: args[5], ProEndTime: args[6]}
 		proAsBytes, _ := json.Marshal(pro)
 		APIstub.PutState(args[0], proAsBytes)
 
@@ -440,10 +445,10 @@ func (s *SmartContract) quitProject(APIstub shim.ChaincodeStubInterface, args []
 func (s *SmartContract) AddProMem(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
 	var sip StuInPro
-	if len(args) != 4 {
+	if len(args) != 6 {
 		return shim.Error("Incorrect number of arguments. Expecting 5")
-	}else {
-		sip = StuInPro{SipID:args[1],SipProID: args[2],SipStuName: args[3],FinalScore:0,RelativeScore:0}
+	} else {
+		sip = StuInPro{SipID: args[1], SipProID: args[2], SipStuName: args[3], FinalScore: args[4], RelativeScore: args[5]}
 		sipAsBytes, _ := json.Marshal(sip)
 		APIstub.PutState(args[0], sipAsBytes)
 
@@ -540,6 +545,20 @@ func (s *SmartContract) getQueryResultForQueryString(stub shim.ChaincodeStubInte
 	buffer.WriteString("]")
 	fmt.Printf("- getQueryResultForQueryString queryResult:\n%s\n", buffer.String())
 	return shim.Success(buffer.Bytes())
+}
+
+func (s *SmartContract) fixStu(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 9 {
+		return shim.Error("Incorrect number of arguments. Expecting 6")
+	}
+
+	var stu = Student{Name: args[1], StuNumber: args[2], Password: args[3], Gender: args[4], University: args[5], Major: args[6], Phone: args[7], Email: args[8]}
+
+	stuAsBytes, _ := json.Marshal(stu)
+	APIstub.PutState(args[0], stuAsBytes)
+
+	return shim.Success(nil)
 }
 
 func main() {

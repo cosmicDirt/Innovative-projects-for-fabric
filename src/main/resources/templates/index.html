@@ -7,7 +7,7 @@
 </head>
 <body>
 <div id="test">
-    <el-button type="primary" @click="test">测试</el-button>
+    <el-button type="primary" @click="test">我的测试</el-button>
     <el-button type="primary" @click="download">测试</el-button>
     <div class="tip">选择文件：</div>
     <input class="file" type="file" title="请选择文件" value="请选择文件">
@@ -36,8 +36,7 @@
         },
         methods: {
             test: function () {
-
-                axios.post('/addComment', {
+                axios.post('/createStudent', {
                     name: "CAR2",
                     password: "tea1",
                     stuNumber: "222",
@@ -55,6 +54,10 @@
                     subproTime: "2022-02-02 17:07:22",
                     endTime: "2020-04-04 17:07:22",
                     difficulty: "简单"
+                })
+                axios.post('/searchStu', {
+                    userName:"4"
+
                 }).then(function (response) {
                     this.res = response.data.details;
                 }.bind(this));

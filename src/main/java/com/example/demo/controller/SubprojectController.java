@@ -40,7 +40,7 @@ public class SubprojectController {
 
             req.setChaincodeID(cid);
             req.setFcn("createSubproject");
-            req.setArgs(new String[]{subproID, data.get("proID"), startTime, data.get("endTime"), data.get("difficulty"), data.get("info")});
+            req.setArgs(new String[]{subproID, data.get("proID"), startTime, data.get("endTime"), data.get("difficulty"), data.get("info"),data.get("subproName")});
             Collection<ProposalResponse> res = channel.sendTransactionProposal(req);
             channel.sendTransaction(res);
             status = "right";
