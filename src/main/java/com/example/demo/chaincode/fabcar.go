@@ -168,8 +168,6 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 		return s.queryAppendix(APIstub, args)
 	} else if function == "queryAllAppendixForSub" {
 		return s.queryAllAppendixForSub(APIstub, args)
-	} else if function=="deleteStu"{
-		return s.deleteStu(APIstub,args)
 	} else if function=="fixStuInfo"{
 		return s.fixStu(APIstub,args)
 	}
