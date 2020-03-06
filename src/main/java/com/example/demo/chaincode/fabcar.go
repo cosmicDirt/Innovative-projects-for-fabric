@@ -434,7 +434,7 @@ func (s *SmartContract) deleteProject(APIstub shim.ChaincodeStubInterface, args 
 
 func (s *SmartContract) quitProject(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-	if len(args) != 2 {
+	if len(args) != 1 {
 		return shim.Error("Incorrect number of arguments. Expecting 2")
 	}
 
