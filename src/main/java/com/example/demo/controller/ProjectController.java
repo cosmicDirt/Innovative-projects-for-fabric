@@ -291,7 +291,7 @@ public class ProjectController {
         return map;
     }
 
-    @PostMapping("/sesrchSIPByproID")
+    @PostMapping("/sesrchMemByproID")
     @ResponseBody
     public Map<String,Object> sesrchSIPByproID(@RequestBody Map<String, String> data) throws Exception {
         String status="";
@@ -316,10 +316,26 @@ public class ProjectController {
             for (ProposalResponse pres : res) {
                 stringResponse = new String(pres.getChaincodeActionResponsePayload());
             }
-            List result = gson.fromJson(stringResponse, List.class);
+            List<LinkedTreeMap<String, LinkedTreeMap<String, Object>>> result = gson.fromJson(stringResponse, List.class);
 
             status = "right";
-            map.put("result", result);
+            map.put("Sip", result);
+
+            List<Map<String, Object>> Meminfo = new ArrayList<>();
+            for(int i=0; i<result.size();i++) {
+                QueryByChaincodeRequest req2 = client.newQueryProposalRequest();
+
+                req2.setChaincodeID(cid);
+                req2.setFcn("queryStudentByName");
+                req2.setArgs(new String[]{(String) result.get(i).get("Record").get("sip_stu_name")});
+                Collection<ProposalResponse> res2 = channel.queryByChaincode(req2);
+                for (ProposalResponse pres : res2) {
+                    stringResponse = new String(pres.getChaincodeActionResponsePayload());
+                }
+                Map<String, Object> result2 = gson.fromJson(stringResponse, Map.class);
+                Meminfo.add(result2);
+            }
+            map.put("proInfo", Meminfo);
         } else {
             status = "wrong";
             details = "连接失败";
