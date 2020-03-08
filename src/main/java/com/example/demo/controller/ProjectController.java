@@ -61,17 +61,39 @@ public class ProjectController {
 
         if(data.containsKey("ProID")) {
 
+            Gson gson = new Gson();
+            String query = "{\"selector\":{\"sip_pro_id\":\"" + data.get("proID") + "\"}}";
 
-            HFClient client= HFJavaExample.getClient();
+            HFClient client = HFJavaExample.getClient();
             Channel channel = client.getChannel("mychannel");
-            TransactionProposalRequest req = client.newTransactionProposalRequest();
+            QueryByChaincodeRequest req = client.newQueryProposalRequest();
             ChaincodeID cid = ChaincodeID.newBuilder().setName("fabcar").build();
 
             req.setChaincodeID(cid);
-            req.setFcn("deleteProject");
-            req.setArgs(new String[] { data.get("proID") });
-            Collection<ProposalResponse> res = channel.sendTransactionProposal(req);
-            channel.sendTransaction(res);
+            req.setFcn("getQueryResultForQueryString");
+            req.setArgs(new String[]{query});
+            Collection<ProposalResponse> res = channel.queryByChaincode(req);
+            for (ProposalResponse pres : res) {
+                stringResponse = new String(pres.getChaincodeActionResponsePayload());
+            }
+            List<LinkedTreeMap<String, LinkedTreeMap<String, Object>>> result = gson.fromJson(stringResponse, List.class);
+            for(int i=0; i<result.size();i++) {
+
+                TransactionProposalRequest req2 = client.newTransactionProposalRequest();
+
+                req2.setChaincodeID(cid);
+                req2.setFcn("deleteProject");
+                req2.setArgs(new String[] { (String) result.get(i).get("Record").get("sip_id")});
+                Collection<ProposalResponse> res2 = channel.sendTransactionProposal(req2);
+                channel.sendTransaction(res2);
+            }
+            TransactionProposalRequest req3 = client.newTransactionProposalRequest();
+
+            req3.setChaincodeID(cid);
+            req3.setFcn("deleteProject");
+            req3.setArgs(new String[] { data.get("proID") });
+            Collection<ProposalResponse> res3 = channel.sendTransactionProposal(req3);
+            channel.sendTransaction(res3);
 
             status="right";
         }
