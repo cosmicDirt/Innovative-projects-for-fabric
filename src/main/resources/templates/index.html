@@ -36,7 +36,7 @@
         },
         methods: {
             test: function () {
-                axios.post('/createStudent', {
+                axios.post('/register', {
                     name: "CAR2",
                     password: "tea1",
                     stuNumber: "222",
@@ -55,12 +55,7 @@
                     endTime: "2020-04-04 17:07:22",
                     difficulty: "简单"
                 })
-                axios.post('/searchStu', {
-                    userName:"4"
 
-                }).then(function (response) {
-                    this.res = response.data.details;
-                }.bind(this));
             },
             submit: function () {
                 formData.append('file', document.querySelector('input[type=file]').files[0]) // 'file' 这个名字要和后台获取文件的名字一样;
