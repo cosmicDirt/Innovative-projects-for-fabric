@@ -61,17 +61,39 @@ public class ProjectController {
 
         if(data.containsKey("ProID")) {
 
+            Gson gson = new Gson();
+            String query = "{\"selector\":{\"sip_pro_id\":\"" + data.get("proID") + "\"}}";
 
-            HFClient client= HFJavaExample.getClient();
+            HFClient client = HFJavaExample.getClient();
             Channel channel = client.getChannel("mychannel");
-            TransactionProposalRequest req = client.newTransactionProposalRequest();
+            QueryByChaincodeRequest req = client.newQueryProposalRequest();
             ChaincodeID cid = ChaincodeID.newBuilder().setName("fabcar").build();
 
             req.setChaincodeID(cid);
-            req.setFcn("deleteProject");
-            req.setArgs(new String[] { data.get("proID") });
-            Collection<ProposalResponse> res = channel.sendTransactionProposal(req);
-            channel.sendTransaction(res);
+            req.setFcn("getQueryResultForQueryString");
+            req.setArgs(new String[]{query});
+            Collection<ProposalResponse> res = channel.queryByChaincode(req);
+            for (ProposalResponse pres : res) {
+                stringResponse = new String(pres.getChaincodeActionResponsePayload());
+            }
+            List<LinkedTreeMap<String, LinkedTreeMap<String, Object>>> result = gson.fromJson(stringResponse, List.class);
+            for(int i=0; i<result.size();i++) {
+
+                TransactionProposalRequest req2 = client.newTransactionProposalRequest();
+
+                req2.setChaincodeID(cid);
+                req2.setFcn("deleteProject");
+                req2.setArgs(new String[] { (String) result.get(i).get("Record").get("sip_id")});
+                Collection<ProposalResponse> res2 = channel.sendTransactionProposal(req2);
+                channel.sendTransaction(res2);
+            }
+            TransactionProposalRequest req3 = client.newTransactionProposalRequest();
+
+            req3.setChaincodeID(cid);
+            req3.setFcn("deleteProject");
+            req3.setArgs(new String[] { data.get("proID") });
+            Collection<ProposalResponse> res3 = channel.sendTransactionProposal(req3);
+            channel.sendTransaction(res3);
 
             status="right";
         }
@@ -262,10 +284,26 @@ public class ProjectController {
             for (ProposalResponse pres : res) {
                 stringResponse = new String(pres.getChaincodeActionResponsePayload());
             }
-            List result = gson.fromJson(stringResponse, List.class);
+            List<LinkedTreeMap<String, LinkedTreeMap<String, Object>>> result = gson.fromJson(stringResponse, List.class);
 
             status = "right";
-            map.put("result", result);
+            map.put("Sip", result);
+
+            List<Map<String, Object>> resultinfo = new ArrayList<>();
+            for(int i=0; i<result.size();i++) {
+                QueryByChaincodeRequest req2 = client.newQueryProposalRequest();
+
+                req2.setChaincodeID(cid);
+                req2.setFcn("queryStudentByName");
+                req2.setArgs(new String[]{(String) result.get(i).get("Record").get("sip_pro_id")});
+                Collection<ProposalResponse> res2 = channel.queryByChaincode(req2);
+                for (ProposalResponse pres : res2) {
+                    stringResponse = new String(pres.getChaincodeActionResponsePayload());
+                }
+                Map<String, Object> result2 = gson.fromJson(stringResponse, Map.class);
+                resultinfo.add(result2);
+            }
+            map.put("proInfo", resultinfo);
         } else {
             status = "wrong";
             details = "连接失败";
@@ -275,7 +313,7 @@ public class ProjectController {
         return map;
     }
 
-    @PostMapping("/sesrchSIPByproID")
+    @PostMapping("/sesrchMemByproID")
     @ResponseBody
     public Map<String,Object> sesrchSIPByproID(@RequestBody Map<String, String> data) throws Exception {
         String status="";
@@ -300,10 +338,26 @@ public class ProjectController {
             for (ProposalResponse pres : res) {
                 stringResponse = new String(pres.getChaincodeActionResponsePayload());
             }
-            List result = gson.fromJson(stringResponse, List.class);
+            List<LinkedTreeMap<String, LinkedTreeMap<String, Object>>> result = gson.fromJson(stringResponse, List.class);
 
             status = "right";
-            map.put("result", result);
+            map.put("Sip", result);
+
+            List<Map<String, Object>> Meminfo = new ArrayList<>();
+            for(int i=0; i<result.size();i++) {
+                QueryByChaincodeRequest req2 = client.newQueryProposalRequest();
+
+                req2.setChaincodeID(cid);
+                req2.setFcn("queryStudentByName");
+                req2.setArgs(new String[]{(String) result.get(i).get("Record").get("sip_stu_name")});
+                Collection<ProposalResponse> res2 = channel.queryByChaincode(req2);
+                for (ProposalResponse pres : res2) {
+                    stringResponse = new String(pres.getChaincodeActionResponsePayload());
+                }
+                Map<String, Object> result2 = gson.fromJson(stringResponse, Map.class);
+                Meminfo.add(result2);
+            }
+            map.put("proInfo", Meminfo);
         } else {
             status = "wrong";
             details = "连接失败";
@@ -386,14 +440,24 @@ public class ProjectController {
                             (String) result2.get(i).get("Record").get("sip_id"),
                             (String) result2.get(i).get("Record").get("sip_pro_id"),
                             (String) result2.get(i).get("Record").get("sip_stu_name"),
-                            stuScore.get(stu).toString(),"0" });
+                            "0",stuScore.get(stu).toString() });
                     Collection<ProposalResponse> res3 = channel.sendTransactionProposal(req3);
                     channel.sendTransaction(res3);
                 }
             }
 
+            QueryByChaincodeRequest req4 = client.newQueryProposalRequest();
+            String query4 = "{\"selector\":{\"sip_pro_id\":\"" + data.get("proID") + "\"}}";
+            req4.setChaincodeID(cid);
+            req4.setFcn("getQueryResultForQueryString");
+            req4.setArgs(new String[]{query4});
+            Collection<ProposalResponse> res4 = channel.queryByChaincode(req4);
+            for (ProposalResponse pres : res4) {
+                stringResponse = new String(pres.getChaincodeActionResponsePayload());
+            }
+            List<LinkedTreeMap<String, LinkedTreeMap<String, Object>>> result4 = gson.fromJson(stringResponse, List.class);
+            map.put("result",result4);
             status = "right";
-            map.put("result", result);
         } else {
             status = "wrong";
             details = "连接失败";

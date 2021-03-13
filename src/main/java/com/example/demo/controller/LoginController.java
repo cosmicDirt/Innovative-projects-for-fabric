@@ -93,7 +93,7 @@ public class LoginController {
             TransactionProposalRequest req1 = client.newTransactionProposalRequest();
             req1.setChaincodeID(cid);
             req1.setFcn("fixStuInfo");
-            req1.setArgs(new String[]{data.get("userName"),data.get("userName"), result.get("stuNumber"),result.get("password"),data.get("gender"), data.get("uni"),data.get("major"),data.get("phone"),data.get("email")});
+            req1.setArgs(new String[]{data.get("userName"),data.get("userName"), data.get("stuNumber"),result.get("password"),data.get("gender"), data.get("uni"),data.get("major"),data.get("phone"),data.get("email")});
             Collection<ProposalResponse> res2 = channel.sendTransactionProposal(req1);
             channel.sendTransaction(res2);
 
@@ -105,7 +105,7 @@ public class LoginController {
             for (ProposalResponse pres : res3) {
                 stringResponse = new String(pres.getChaincodeActionResponsePayload());
             }
-            List result2 = gson.fromJson(stringResponse, List.class);
+            Map<String, String> result2 = gson.fromJson(stringResponse, Map.class);
 
             map.put("result", result2);
             status = "right";
