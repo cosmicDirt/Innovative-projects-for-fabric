@@ -539,17 +539,24 @@ public class ProjectController {
             for (ProposalResponse pres : res) {
                 stringResponse = new String(pres.getChaincodeActionResponsePayload());
             }
-            Map<String, LinkedTreeMap<String, String>> result = gson.fromJson(stringResponse, Map.class);
+            Map<String, String> result = gson.fromJson(stringResponse, Map.class);
 
-            TransactionProposalRequest req2 = client.newTransactionProposalRequest();
+            if(result!=null) {
+                TransactionProposalRequest req2 = client.newTransactionProposalRequest();
 
-            req.setChaincodeID(cid);
-            req.setFcn("createProject");
-            req.setArgs(new String[]{result.get("Record").get("project_id"), result.get("Record").get("project_id"),
-                    result.get("Record").get("pro_info"), result.get("Record").get("pro_leader_name"), data.get("teacherName"),
-                    result.get("Record").get("pro_start_time"), result.get("Record").get("pro_end_time"), result.get("Record").get("project_name")});
-            Collection<ProposalResponse> res2 = channel.sendTransactionProposal(req2);
-            channel.sendTransaction(res2);
+                req2.setChaincodeID(cid);
+                req2.setFcn("createProject");
+                req2.setArgs(new String[]{result.get("project_id"), result.get("project_id"),
+                        result.get("pro_info"), result.get("pro_leader_name"), data.get("teacherName"),
+                        result.get("pro_start_time"), result.get("pro_end_time"), result.get("project_name")});
+                Collection<ProposalResponse> res2 = channel.sendTransactionProposal(req2);
+                channel.sendTransaction(res2);
+                status = "right";
+                details = "加入成功";
+            } else{
+                status = "wrong";
+                details = "项目不存在";
+            }
         } else {
             status = "wrong";
             details = "连接失败";
