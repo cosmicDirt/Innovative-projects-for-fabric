@@ -33,11 +33,8 @@ public class HFJavaExample {
     public static void main(String[] args) throws Exception {
         // create fabric-ca client
 
-<<<<<<< HEAD
-        HFCAClient caClient = getHfCaClient("http://192.168.1.111:7054", null);
-=======
+
         HFCAClient caClient = getHfCaClient("http://192.168.1.113:7054", null);
->>>>>>> f3ea3c12fc1bd958b410552a2676d6c854bfb6ac
 
         // enroll or load admin
         HFUser admin = getAdmin(caClient);
@@ -71,11 +68,7 @@ public class HFJavaExample {
 
     public static HFClient getClient() throws Exception{
         // create fabric-ca client
-<<<<<<< HEAD
-        HFCAClient caClient = getHfCaClient("http://192.168.1.111:7054", null);
-=======
         HFCAClient caClient = getHfCaClient("http://192.168.1.113:7054", null);
->>>>>>> f3ea3c12fc1bd958b410552a2676d6c854bfb6ac
         // enroll or load admin
         HFUser admin = getAdmin(caClient);
         // get HFC client instance
@@ -153,15 +146,6 @@ public class HFJavaExample {
     static Channel getChannel(HFClient client) throws InvalidArgumentException, TransactionException {
         // initialize channel
         // peer name and endpoint in fabcar network
-<<<<<<< HEAD
-        Peer peer = client.newPeer("peer1", "grpc://192.168.1.111:7051");
-        // Peer peer = client.newPeer("peer1", "grpc://192.168.1.111:8051");
-
-        // eventhub name and endpoint in fabcar network
-        //EventHub eventHub = client.newEventHub("eventhub01", "grpc://192.168.1.111:7053");
-        // orderer name and endpoint in fabcar network
-        Orderer orderer = client.newOrderer("orderer", "grpc://192.168.1.111:7050");
-=======
         Peer peer = client.newPeer("peer1", "grpc://192.168.1.113:7051");
         // Peer peer = client.newPeer("peer1", "grpc://192.168.1.113:8051");
 
@@ -169,7 +153,6 @@ public class HFJavaExample {
         //EventHub eventHub = client.newEventHub("eventhub01", "grpc://192.168.1.113:7053");
         // orderer name and endpoint in fabcar network
         Orderer orderer = client.newOrderer("orderer", "grpc://192.168.1.113:7050");
->>>>>>> f3ea3c12fc1bd958b410552a2676d6c854bfb6ac
         // channel name in fabcar network
         Channel channel = client.newChannel("mychannel");
         channel.addPeer(peer);
