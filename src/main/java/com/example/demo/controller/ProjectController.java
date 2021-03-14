@@ -552,7 +552,7 @@ public class ProjectController {
 
         Map<String, Object> map = new HashMap<String, Object>();
 
-        if (data.containsKey("ProID") && data.containsKey("teacherName")) {
+        if (data.containsKey("proID") && data.containsKey("teacherName")) {
             Gson gson=new Gson();
 
             HFClient client= HFJavaExample.getClient();
@@ -562,7 +562,7 @@ public class ProjectController {
 
             req.setChaincodeID(cid);
             req.setFcn("queryStudentByName");
-            req.setArgs(new String[] { data.get("ProID") });
+            req.setArgs(new String[] { data.get("proID") });
             Collection<ProposalResponse> res = channel.queryByChaincode(req);
             for (ProposalResponse pres : res) {
                 stringResponse = new String(pres.getChaincodeActionResponsePayload());
