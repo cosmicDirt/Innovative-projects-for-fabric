@@ -641,4 +641,55 @@ public class ProjectController {
         map.put("details", details);
         return map;
     }
+
+    @PostMapping("/teacherQuitPro")
+    @ResponseBody
+    public Map<String,Object> teacherQuitPro(@RequestBody Map<String, String> data) throws Exception {
+        String status = "";
+        String details = "";
+        String stringResponse = "";
+
+        Map<String, Object> map = new HashMap<String, Object>();
+
+        if (data.containsKey("proID") && data.containsKey("teacherName")) {
+            Gson gson=new Gson();
+
+            HFClient client= HFJavaExample.getClient();
+            Channel channel = client.getChannel("mychannel");
+            QueryByChaincodeRequest req = client.newQueryProposalRequest();
+            ChaincodeID cid = ChaincodeID.newBuilder().setName("fabcar").build();
+
+            req.setChaincodeID(cid);
+            req.setFcn("queryStudentByName");
+            req.setArgs(new String[] { data.get("proID") });
+            Collection<ProposalResponse> res = channel.queryByChaincode(req);
+            for (ProposalResponse pres : res) {
+                stringResponse = new String(pres.getChaincodeActionResponsePayload());
+            }
+            Map<String, String> result = gson.fromJson(stringResponse, Map.class);
+
+            if(result!=null) {
+                TransactionProposalRequest req2 = client.newTransactionProposalRequest();
+
+                req2.setChaincodeID(cid);
+                req2.setFcn("createProject");
+                req2.setArgs(new String[]{result.get("project_id"), result.get("project_id"),
+                        result.get("pro_info"), result.get("pro_leader_name"), "",
+                        result.get("pro_start_time"), result.get("pro_end_time"), result.get("project_name")});
+                Collection<ProposalResponse> res2 = channel.sendTransactionProposal(req2);
+                channel.sendTransaction(res2);
+                status = "right";
+                details = "退出成功";
+            } else{
+                status = "wrong";
+                details = "项目不存在";
+            }
+        } else {
+            status = "wrong";
+            details = "连接失败";
+        }
+        map.put("status", status);
+        map.put("details", details);
+        return map;
+    }
 }
