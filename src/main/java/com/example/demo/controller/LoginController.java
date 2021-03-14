@@ -113,6 +113,7 @@ public class LoginController {
 
             map.put("result", result2);
             status = "right";
+            details = "修改成功";
         } else {
             status = "wrong";
             details = "连接失败";
