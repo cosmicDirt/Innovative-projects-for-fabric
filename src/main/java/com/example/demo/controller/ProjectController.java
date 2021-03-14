@@ -607,11 +607,16 @@ public class ProjectController {
             for (ProposalResponse pres : res) {
                 stringResponse = new String(pres.getChaincodeActionResponsePayload());
             }
-            List<Map<String, Object>> result = gson.fromJson(stringResponse, List.class);
-            if (result != null) {
+            List<Map<String, Object>> results = gson.fromJson(stringResponse, List.class);
+
+            if (results != null) {
+                List<Object> proInfo = new ArrayList<>();
+                for(Map<String, Object> result:results){
+                    proInfo.add(result.get("Record"));
+                }
                 status = "right";
                 details = "查询成功";
-                map.put("result", result);
+                map.put("proInfo", proInfo);
             } else {
                 status = "wrong";
                 details = "未加入项目";
