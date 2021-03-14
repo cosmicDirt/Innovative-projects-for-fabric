@@ -440,7 +440,7 @@ public class ProjectController {
                             (String) result2.get(i).get("Record").get("sip_id"),
                             (String) result2.get(i).get("Record").get("sip_pro_id"),
                             (String) result2.get(i).get("Record").get("sip_stu_name"),
-                            "0",stuScore.get(stu).toString() });
+                            stuScore.get(stu).toString(),"0" });
                     Collection<ProposalResponse> res3 = channel.sendTransactionProposal(req3);
                     channel.sendTransaction(res3);
                 }
@@ -506,6 +506,93 @@ public class ProjectController {
             channel.sendTransaction(res2);
 
             status = "right";
+        } else {
+            status = "wrong";
+            details = "连接失败";
+        }
+        map.put("status", status);
+        map.put("details", details);
+        return map;
+    }
+
+    @PostMapping("/teacherJoinPro")
+    @ResponseBody
+    public Map<String,Object> teacherJoinPro(@RequestBody Map<String, String> data) throws Exception {
+        String status = "";
+        String details = "";
+        String stringResponse = "";
+
+        Map<String, Object> map = new HashMap<String, Object>();
+
+        if (data.containsKey("ProID") && data.containsKey("teacherName")) {
+            Gson gson=new Gson();
+
+            HFClient client= HFJavaExample.getClient();
+            Channel channel = client.getChannel("mychannel");
+            QueryByChaincodeRequest req = client.newQueryProposalRequest();
+            ChaincodeID cid = ChaincodeID.newBuilder().setName("fabcar").build();
+
+            req.setChaincodeID(cid);
+            req.setFcn("queryStudentByName");
+            req.setArgs(new String[] { data.get("ProID") });
+            Collection<ProposalResponse> res = channel.queryByChaincode(req);
+            for (ProposalResponse pres : res) {
+                stringResponse = new String(pres.getChaincodeActionResponsePayload());
+            }
+            Map<String, LinkedTreeMap<String, String>> result = gson.fromJson(stringResponse, Map.class);
+
+            TransactionProposalRequest req2 = client.newTransactionProposalRequest();
+
+            req.setChaincodeID(cid);
+            req.setFcn("createProject");
+            req.setArgs(new String[]{result.get("Record").get("project_id"), result.get("Record").get("project_id"),
+                    result.get("Record").get("pro_info"), result.get("Record").get("pro_leader_name"), data.get("teacherName"),
+                    result.get("Record").get("pro_start_time"), result.get("Record").get("pro_end_time"), result.get("Record").get("project_name")});
+            Collection<ProposalResponse> res2 = channel.sendTransactionProposal(req2);
+            channel.sendTransaction(res2);
+        } else {
+            status = "wrong";
+            details = "连接失败";
+        }
+        map.put("status", status);
+        map.put("details", details);
+        return map;
+    }
+
+    @PostMapping("/searchProByTeacher")
+    @ResponseBody
+    public Map<String,Object> sesrchProByTeacher(@RequestBody Map<String, String> data) throws Exception {
+        String status="";
+        String details="";
+        String stringResponse="";
+
+        Map<String, Object> map = new HashMap<String, Object>();
+
+        if(data.containsKey("teacherName")) {
+            Gson gson = new Gson();
+            String query = "{\"selector\":{\"pro_teacher_name\":\"" + data.get("teacherName") + "\"}}";
+
+            HFClient client = HFJavaExample.getClient();
+            Channel channel = client.getChannel("mychannel");
+            QueryByChaincodeRequest req = client.newQueryProposalRequest();
+            ChaincodeID cid = ChaincodeID.newBuilder().setName("fabcar").build();
+
+            req.setChaincodeID(cid);
+            req.setFcn("getQueryResultForQueryString");
+            req.setArgs(new String[]{query});
+            Collection<ProposalResponse> res = channel.queryByChaincode(req);
+            for (ProposalResponse pres : res) {
+                stringResponse = new String(pres.getChaincodeActionResponsePayload());
+            }
+            List<Map<String, Object>> result = gson.fromJson(stringResponse, List.class);
+            if (result != null) {
+                status = "right";
+                details = "查询成功";
+                map.put("result", result);
+            } else {
+                status = "wrong";
+                details = "未加入项目";
+            }
         } else {
             status = "wrong";
             details = "连接失败";
