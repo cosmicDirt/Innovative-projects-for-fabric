@@ -28,17 +28,33 @@ public class ProjectController {
 
             HFClient client= HFJavaExample.getClient();
             Channel channel = client.getChannel("mychannel");
-            TransactionProposalRequest req = client.newTransactionProposalRequest();
+            QueryByChaincodeRequest req = client.newQueryProposalRequest();
             ChaincodeID cid = ChaincodeID.newBuilder().setName("fabcar").build();
 
             req.setChaincodeID(cid);
-            req.setFcn("createProject");
-            req.setArgs(new String[] { ProID,ProID,data.get("info"),data.get("leaderName"),data.get("teacherName"),
-                    data.get("startTime"),data.get("endTime"),data.get("proName")});
-            Collection<ProposalResponse> res = channel.sendTransactionProposal(req);
-            channel.sendTransaction(res);
-            status="right";
-            map.put("ProID",ProID);
+            req.setFcn("queryTeacherByName");
+            req.setArgs(new String[] { data.get("teacherName") });
+            Collection<ProposalResponse> res = channel.queryByChaincode(req);
+            for (ProposalResponse pres : res) {
+                stringResponse = new String(pres.getChaincodeActionResponsePayload());
+            }
+            Map<String,String> result = gson.fromJson(stringResponse, Map.class);
+
+            if(result!=null) {
+                TransactionProposalRequest req2 = client.newTransactionProposalRequest();
+
+                req2.setChaincodeID(cid);
+                req2.setFcn("createProject");
+                req2.setArgs(new String[]{ProID, ProID, data.get("info"), data.get("leaderName"), data.get("teacherName"),
+                        data.get("startTime"), data.get("endTime"), data.get("proName")});
+                Collection<ProposalResponse> res2 = channel.sendTransactionProposal(req2);
+                channel.sendTransaction(res2);
+                status = "right";
+                map.put("ProID", ProID);
+            }else {
+                status = "wrong";
+                details="负责人不存在";
+            }
         }
         else
         {
