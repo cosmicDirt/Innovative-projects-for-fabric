@@ -563,7 +563,7 @@ public class ProjectController {
                 req2.setChaincodeID(cid);
                 req2.setFcn("createProject");
                 req2.setArgs(new String[]{result.get("project_id"), result.get("project_id"),
-                        result.get("pro_info"), result.get("pro_leader_name"), data.get("teacherName"),
+                        result.get("pro_info"), result.get("pro_leader_name"), data.getOrDefault("teacherName", ""),
                         result.get("pro_start_time"), result.get("pro_end_time"), result.get("project_name")});
                 Collection<ProposalResponse> res2 = channel.sendTransactionProposal(req2);
                 channel.sendTransaction(res2);
