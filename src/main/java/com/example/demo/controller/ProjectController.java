@@ -21,7 +21,7 @@ public class ProjectController {
 
         Map<String, Object> map = new HashMap<String, Object>();
 
-        if(data.containsKey("info")) {
+        if(data.containsKey("teacherName")) {
             Gson gson=new Gson();
             Random random=new Random();
             String ProID=String.valueOf(random.nextInt());
@@ -30,30 +30,42 @@ public class ProjectController {
             Channel channel = client.getChannel("mychannel");
             QueryByChaincodeRequest req = client.newQueryProposalRequest();
             ChaincodeID cid = ChaincodeID.newBuilder().setName("fabcar").build();
+            if(!data.get("teacherName").equals("")) {
+                req.setChaincodeID(cid);
+                req.setFcn("queryTeacherByName");
+                req.setArgs(new String[]{data.get("teacherName")});
+                Collection<ProposalResponse> res = channel.queryByChaincode(req);
+                for (ProposalResponse pres : res) {
+                    stringResponse = new String(pres.getChaincodeActionResponsePayload());
+                }
+                Map<String, String> result = gson.fromJson(stringResponse, Map.class);
 
-            req.setChaincodeID(cid);
-            req.setFcn("queryTeacherByName");
-            req.setArgs(new String[] { data.get("teacherName") });
-            Collection<ProposalResponse> res = channel.queryByChaincode(req);
-            for (ProposalResponse pres : res) {
-                stringResponse = new String(pres.getChaincodeActionResponsePayload());
-            }
-            Map<String,String> result = gson.fromJson(stringResponse, Map.class);
+                if (result != null) {
+                    TransactionProposalRequest req2 = client.newTransactionProposalRequest();
 
-            if(result!=null) {
+                    req2.setChaincodeID(cid);
+                    req2.setFcn("createProject");
+                    req2.setArgs(new String[]{ProID, ProID, data.get("info"), data.get("leaderName"), data.getOrDefault("teacherName", ""),
+                            data.get("startTime"), data.get("endTime"), data.get("proName")});
+                    Collection<ProposalResponse> res2 = channel.sendTransactionProposal(req2);
+                    channel.sendTransaction(res2);
+                    status = "right";
+                    map.put("ProID", ProID);
+                } else {
+                    status = "wrong";
+                    details = "负责人不存在";
+                }
+            }else{
                 TransactionProposalRequest req2 = client.newTransactionProposalRequest();
 
                 req2.setChaincodeID(cid);
                 req2.setFcn("createProject");
-                req2.setArgs(new String[]{ProID, ProID, data.get("info"), data.get("leaderName"), data.get("teacherName"),
+                req2.setArgs(new String[]{ProID, ProID, data.get("info"), data.get("leaderName"), data.getOrDefault("teacherName", ""),
                         data.get("startTime"), data.get("endTime"), data.get("proName")});
                 Collection<ProposalResponse> res2 = channel.sendTransactionProposal(req2);
                 channel.sendTransaction(res2);
                 status = "right";
                 map.put("ProID", ProID);
-            }else {
-                status = "wrong";
-                details="负责人不存在";
             }
         }
         else
@@ -563,7 +575,7 @@ public class ProjectController {
                 req2.setChaincodeID(cid);
                 req2.setFcn("createProject");
                 req2.setArgs(new String[]{result.get("project_id"), result.get("project_id"),
-                        result.get("pro_info"), result.get("pro_leader_name"), data.getOrDefault("teacherName", ""),
+                        result.get("pro_info"), result.get("pro_leader_name"), data.get("teacherName"),
                         result.get("pro_start_time"), result.get("pro_end_time"), result.get("project_name")});
                 Collection<ProposalResponse> res2 = channel.sendTransactionProposal(req2);
                 channel.sendTransaction(res2);
