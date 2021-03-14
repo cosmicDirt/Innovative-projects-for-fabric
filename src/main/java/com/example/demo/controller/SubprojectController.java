@@ -30,7 +30,8 @@ public class SubprojectController {
             Random random = new Random();
             String subproID = String.valueOf(random.nextInt());
             String timeStamp = String.valueOf(System.currentTimeMillis());
-            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            df.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
             String startTime = df.format(new Date());
 
             HFClient client = HFJavaExample.getClient();
@@ -162,7 +163,7 @@ public class SubprojectController {
 
         if (data.containsKey("subproID")) {
 
-            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             String time = df.format(new Date());
 
             HFClient client = HFJavaExample.getClient();

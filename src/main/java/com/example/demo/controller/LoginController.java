@@ -49,9 +49,13 @@ public class LoginController {
                 status = "wrong";
                 details = "密码错误";
             }
-            //用户名与密码正确
+            else if((data.get("identity").equals("student")&&!result.containsKey("stuNumber"))||
+                    (data.get("identity").equals("teacher")&&!result.containsKey("teaNumber"))){
+                status = "wrong";
+                details="身份与账号不一致";
+            }
             else {
-                status = "right";
+                status="right";
             }
         } else {
             status = "wrong";
