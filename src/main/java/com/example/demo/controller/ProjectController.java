@@ -229,17 +229,20 @@ public class ProjectController {
             Channel channel = client.getChannel("mychannel");
             ChaincodeID cid = ChaincodeID.newBuilder().setName("fabcar").build();
 
-            QueryByChaincodeRequest req = client.newQueryProposalRequest();
+            Map<String, String> result = null;
+            if(data.get("isCheck").equals("1")) {
+                QueryByChaincodeRequest req = client.newQueryProposalRequest();
 
-            req.setChaincodeID(cid);
-            req.setFcn("queryStudentByName");
-            req.setArgs(new String[] { data.get("proID") });
-            Collection<ProposalResponse> res = channel.queryByChaincode(req);
-            for (ProposalResponse pres : res) {
-                stringResponse = new String(pres.getChaincodeActionResponsePayload());
+                req.setChaincodeID(cid);
+                req.setFcn("queryStudentByName");
+                req.setArgs(new String[]{data.get("proID")});
+                Collection<ProposalResponse> res = channel.queryByChaincode(req);
+                for (ProposalResponse pres : res) {
+                    stringResponse = new String(pres.getChaincodeActionResponsePayload());
+                }
+                result = gson.fromJson(stringResponse, Map.class);
             }
-            Map<String, String> result = gson.fromJson(stringResponse, Map.class);
-            if(result!=null) {
+            if(result!=null || data.get("isCheck").equals("0")) {
                 TransactionProposalRequest req2 = client.newTransactionProposalRequest();
 
                 req2.setChaincodeID(cid);
