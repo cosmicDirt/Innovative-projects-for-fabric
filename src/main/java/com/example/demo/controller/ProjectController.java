@@ -50,6 +50,7 @@ public class ProjectController {
                     Collection<ProposalResponse> res2 = channel.sendTransactionProposal(req2);
                     channel.sendTransaction(res2);
                     status = "right";
+                    details = "创建成功";
                     map.put("ProID", ProID);
                 } else {
                     status = "wrong";
@@ -65,6 +66,7 @@ public class ProjectController {
                 Collection<ProposalResponse> res2 = channel.sendTransactionProposal(req2);
                 channel.sendTransaction(res2);
                 status = "right";
+                details = "创建成功";
                 map.put("ProID", ProID);
             }
         }
@@ -219,23 +221,43 @@ public class ProjectController {
         Map<String, Object> map = new HashMap<String, Object>();
 
         if(data.containsKey("proID")) {
-
+            Gson gson=new Gson();
             Random random=new Random();
             String SipID=String.valueOf(random.nextInt());
 
             HFClient client= HFJavaExample.getClient();
             Channel channel = client.getChannel("mychannel");
-            TransactionProposalRequest req = client.newTransactionProposalRequest();
             ChaincodeID cid = ChaincodeID.newBuilder().setName("fabcar").build();
 
-            req.setChaincodeID(cid);
-            req.setFcn("AddProMem");
-            req.setArgs(new String[] { SipID,SipID,data.get("proID"),data.get("stuName"),"0","0" });
-            Collection<ProposalResponse> res = channel.sendTransactionProposal(req);
-            channel.sendTransaction(res);
+            Map<String, String> result = null;
+            if(data.get("isCheck").equals("1")) {
+                QueryByChaincodeRequest req = client.newQueryProposalRequest();
 
-            map.put("SipID", SipID);
-            status="right";
+                req.setChaincodeID(cid);
+                req.setFcn("queryStudentByName");
+                req.setArgs(new String[]{data.get("proID")});
+                Collection<ProposalResponse> res = channel.queryByChaincode(req);
+                for (ProposalResponse pres : res) {
+                    stringResponse = new String(pres.getChaincodeActionResponsePayload());
+                }
+                result = gson.fromJson(stringResponse, Map.class);
+            }
+            if(result!=null || data.get("isCheck").equals("0")) {
+                TransactionProposalRequest req2 = client.newTransactionProposalRequest();
+
+                req2.setChaincodeID(cid);
+                req2.setFcn("AddProMem");
+                req2.setArgs(new String[]{SipID, SipID, data.get("proID"), data.get("stuName"), "0", "0"});
+                Collection<ProposalResponse> res2 = channel.sendTransactionProposal(req2);
+                channel.sendTransaction(res2);
+
+                map.put("SipID", SipID);
+                status = "right";
+                details = "加入成功";
+            }else{
+                status = "wrong";
+                details = "项目不存在";
+            }
         }
         else
         {
