@@ -42,7 +42,7 @@ public class LoginController {
             }
             Map<String, String> result = gson.fromJson(stringResponse, Map.class);
 
-            if (result.isEmpty()) {
+            if (result==null) {
                 status = "wrong";
                 details = "用户不存在";
             } else if (!result.get("password").equals(data.get("password"))) {
