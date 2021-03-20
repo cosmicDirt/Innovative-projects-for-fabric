@@ -490,7 +490,7 @@ public class ProjectController {
                             (String) result2.get(i).get("Record").get("sip_id"),
                             (String) result2.get(i).get("Record").get("sip_pro_id"),
                             (String) result2.get(i).get("Record").get("sip_stu_name"),
-                            stuScore.get(stu).toString(),"0" });
+                            "0", stuScore.get(stu).toString() });
                     Collection<ProposalResponse> res3 = channel.sendTransactionProposal(req3);
                     channel.sendTransaction(res3);
                 }
@@ -549,7 +549,7 @@ public class ProjectController {
             req2.setChaincodeID(cid);
             req2.setFcn("AddProMem");
             req2.setArgs(new String[]{data.get("SipID"), data.get("SipID"), result.get("sip_pro_id"),
-                    result.get("sip_stu_name"), result.get("relative_score"), data.get("score")});
+                    result.get("sip_stu_name"), data.get("score"), result.get("relative_score")});
             Collection<ProposalResponse> res2 = channel.sendTransactionProposal(req2);
             channel.sendTransaction(res2);
 
