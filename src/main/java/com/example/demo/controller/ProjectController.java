@@ -537,21 +537,19 @@ public class ProjectController {
 
             req.setChaincodeID(cid);
             req.setFcn("queryStudentByName");
-            req.setArgs(new String[] { data.get("ProID") });
+            req.setArgs(new String[] { data.get("SipID") });
             Collection<ProposalResponse> res = channel.queryByChaincode(req);
             for (ProposalResponse pres : res) {
                 stringResponse = new String(pres.getChaincodeActionResponsePayload());
             }
-            Map<String, LinkedTreeMap<String, String>> result = gson.fromJson(stringResponse, Map.class);
+            Map<String, String> result = gson.fromJson(stringResponse, Map.class);
 
             TransactionProposalRequest req2 = client.newTransactionProposalRequest();
 
             req2.setChaincodeID(cid);
             req2.setFcn("AddProMem");
-            req2.setArgs(new String[]{data.get("SipID"), data.get("SipID"), result.get("Record").get("sip_pro_id"),
-                    result.get("Record").get("sip_stu_name"),
-                    result.get("Record").get("relative_score"),
-                    data.get("score")});
+            req2.setArgs(new String[]{data.get("SipID"), data.get("SipID"), result.get("sip_pro_id"),
+                    result.get("sip_stu_name"), result.get("relative_score"), data.get("score")});
             Collection<ProposalResponse> res2 = channel.sendTransactionProposal(req2);
             channel.sendTransaction(res2);
 
