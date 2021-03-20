@@ -28,7 +28,7 @@ public class SubprojectController {
         if (data.containsKey("proID")) {
             Gson gson = new Gson();
             Random random = new Random();
-            String subproID = String.valueOf(random.nextInt());
+            String subproID = String.valueOf(random.nextInt()).replace("-","");
             String timeStamp = String.valueOf(System.currentTimeMillis());
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             df.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));

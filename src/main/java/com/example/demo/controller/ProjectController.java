@@ -24,7 +24,7 @@ public class ProjectController {
         if(data.containsKey("teacherName")) {
             Gson gson=new Gson();
             Random random=new Random();
-            String ProID=String.valueOf(random.nextInt());
+            String ProID=String.valueOf(random.nextInt()).replace("-","");
 
             HFClient client= HFJavaExample.getClient();
             Channel channel = client.getChannel("mychannel");
@@ -223,7 +223,7 @@ public class ProjectController {
         if(data.containsKey("proID")) {
             Gson gson=new Gson();
             Random random=new Random();
-            String SipID=String.valueOf(random.nextInt());
+            String SipID=String.valueOf(random.nextInt()).replace("-","");
 
             HFClient client= HFJavaExample.getClient();
             Channel channel = client.getChannel("mychannel");
