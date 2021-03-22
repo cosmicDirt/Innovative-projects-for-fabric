@@ -448,6 +448,8 @@ public class ProjectController {
             Map<String, Float> stuScore=new HashMap<String, Float>();
             for(int i=0;i<result.size();i++){
                 List<LinkedTreeMap<String, String>> comments=(List<LinkedTreeMap<String, String>>)result.get(i).get("Record").get("comment");
+                if(comments==null)
+                    continue;
                 List<String> members=(List<String>)result.get(i).get("Record").get("member");
                 float score=0;
                 for(int j=0;j<comments.size();j++){
